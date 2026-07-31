@@ -1,519 +1,107 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkPedidos - Plataforma de Empleo Online</title>
+    <title>Canaldetrabanotareasvip</title>
+    <!-- Tailwind CSS para que se vea genial y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Script oficial de la API de Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --success: #16a34a;
-            --success-bg: #dcfce7;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --vip-color: #d97706;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding-bottom: 90px;
-        }
-
-        .container {
-            padding: 16px;
-            max-width: 480px;
-            margin: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .header-left { display: flex; align-items: center; gap: 12px; }
-
-        .user-profile {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), #3b82f6);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .views-section { display: none; }
-        .views-section.active { display: block; animation: fadeIn 0.3s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .balance-header { display: flex; justify-content: space-between; align-items: center; }
-        .balance-box .label { font-size: 13px; color: var(--text-muted); }
-        .balance-box .amount { font-size: 26px; font-weight: 800; color: var(--success); margin-top: 2px; }
-
-        .badge-vip {
-            background: #fef3c7;
-            color: var(--vip-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid #fde68a;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 14px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .vip-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 14px;
-            position: relative;
-        }
-
-        .vip-card.active-vip {
-            border-color: var(--success);
-            background: #f0fdf4;
-        }
-
-        .vip-title { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
-        .vip-info { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
-        
-        .bank-details {
-            background: #f1f5f9;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin: 12px 0;
-            border-left: 4px solid var(--primary);
-        }
-        .bank-details p { margin-bottom: 4px; }
-
-        .input-group {
-            margin-top: 10px;
-        }
-        .input-group label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .task-action-box {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 0;
-            box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
-            border-top: 1px solid var(--border-color);
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--text-muted);
-            font-size: 10px;
-            gap: 4px;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item i { font-size: 18px; }
-        .nav-item.active { color: var(--primary); font-weight: 600; }
-    </style>
 </head>
-<body>
+<body class="bg-slate-900 text-white min-h-screen p-4 flex flex-col items-center">
 
-    <div class="container">
-        <header class="header">
-            <div class="header-left">
-                <div class="user-profile" id="user-initial">U</div>
-                <div>
-                    <h3 style="font-size: 14px; font-weight: 700;" id="user-name">Trabajador Online</h3>
-                    <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
-                </div>
-            </div>
-            <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px;"></i>
-        </header>
-
-        <!-- ================= VISTA INICIO ================= -->
-        <div id="view-inicio" class="views-section active">
-            <div class="card">
-                <div class="balance-header">
-                    <div class="balance-box">
-                        <span class="label">Saldo Total en Cuenta</span>
-                        <h2 class="amount" id="display-saldo">$2.000</h2>
-                    </div>
-                    <button style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:20px; font-size:11px; font-weight:600;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Depositar</button>
-                </div>
-            </div>
-
-            <div class="card" style="background: linear-gradient(135deg, #1e293b, #334155); color: white;">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">💼 Sistema de Procesamiento</h3>
-                <p style="font-size: 12px; opacity: 0.8; line-height: 1.4;">Gana dinero procesando pedidos online para marcas asociadas según tu nivel VIP activo.</p>
-                <button class="btn-primary" style="background: var(--success); margin-top: 12px;" onclick="cambiarVista('tareas', document.querySelectorAll('.nav-item')[1])">Ir a hacer Tareas</button>
-            </div>
+    <div class="w-full max-w-md bg-slate-800 p-6 rounded-xl shadow-lg mt-6">
+        <h1 id="tituloApp" class="text-2xl font-bold mb-4 text-cyan-400 text-center">Mis Tareas / Datos</h1>
+        
+        <!-- Formulario para agregar datos -->
+        <div class="flex gap-2 mb-6">
+            <input type="text" id="inputDato" placeholder="Escribe algo aquí..." 
+                class="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+            <button id="btnGuardar" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-4 py-2 rounded transition">
+                Guardar
+            </button>
         </div>
 
-        <!-- ================= VISTA TAREAS ================= -->
-        <div id="view-tareas" class="views-section">
-            <div class="card">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Centro de Tareas de Pedidos</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Procesa 5 pedidos diarios correspondientes a tu nivel.</p>
-                
-                <div style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
-                        <span>Progreso de hoy:</span>
-                        <strong id="tareas-completadas-txt">0 / 5 completadas</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                        <span>Ganancia por tarea:</span>
-                        <strong style="color: var(--success);" id="ganancia-por-tarea-txt">$0 CLP</strong>
-                    </div>
-                </div>
-
-                <div class="task-action-box" id="task-box-content">
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Haz clic abajo para procesar el pedido asignado.</p>
-                    <button class="btn-primary" onclick="procesarPedido()">Procesar Siguiente Pedido</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= VISTA RECARGAS ================= -->
-        <div id="view-recarga" class="views-section">
-            <div class="card">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Depósito y Activación</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Transfiere el monto correspondiente al nivel VIP que deseas activar a la siguiente cuenta bancaria:</p>
-
-                <div class="bank-details">
-                    <p><strong>Banco:</strong> BancoEstado / CuentaRUT</p>
-                    <p><strong>Tipo de Cuenta:</strong> Vista</p>
-                    <p><strong>N° de Cuenta:</strong> 12.345.678-9</p>
-                    <p><strong>RUT:</strong> 12.345.678-9</p>
-                    <p><strong>Correo:</strong> pagos@workpedidos.cl</p>
-                </div>
-
-                <div class="input-group">
-                    <label>Monto depositado (CLP)</label>
-                    <input type="number" id="input-monto-dep" placeholder="Ej: 1500">
-                </div>
-                <div class="input-group" style="margin-top: 8px;">
-                    <label>Número de Comprobante / Operación</label>
-                    <input type="text" id="input-comprobante" placeholder="Ej: 98765432">
-                </div>
-
-                <button class="btn-primary" onclick="enviarComprobante()">Notificar Depósito</button>
-            </div>
-        </div>
-
-        <!-- ================= VISTA VIP / NIVELES ================= -->
-        <div id="view-vip" class="views-section">
-            <div class="card" style="margin-bottom: 12px;">
-                <h3 style="font-size: 15px; font-weight: 700;">Niveles VIP Disponibles</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Elige tu nivel de trabajo según tu inversión.</p>
-            </div>
-
-            <!-- VIP 1 -->
-            <div class="vip-card" id="card-vip-1">
-                <div class="vip-title">
-                    <span>VIP 1 (Básico)</span>
-                    <span style="color: var(--success); font-weight: 700;">$3.500 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$1.500 CLP</strong> (+ $2.000 de regalo app)</p>
-                    <p>• Tareas diarias: <strong>5 pedidos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$200 CLP</strong> (Total diario: $1.000)</p>
-                </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(1, 1500)">Activar VIP 1</button>
-            </div>
-
-            <!-- VIP 2 -->
-            <div class="vip-card" id="card-vip-2">
-                <div class="vip-title">
-                    <span>VIP 2</span>
-                    <span style="color: var(--success); font-weight: 700;">$7.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$5.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 pedidos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$500 CLP</strong> (Total diario: $2.500)</p>
-                </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(2, 5000)">Activar VIP 2</button>
-            </div>
-
-            <!-- VIP 3 -->
-            <div class="vip-card" id="card-vip-3">
-                <div class="vip-title">
-                    <span>VIP 3</span>
-                    <span style="color: var(--success); font-weight: 700;">$15.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$12.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 pedidos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$1.200 CLP</strong> (Total diario: $6.000)</p>
-                </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(3, 12000)">Activar VIP 3</button>
-            </div>
-
-            <!-- VIP 4 -->
-            <div class="vip-card" id="card-vip-4">
-                <div class="vip-title">
-                    <span>VIP 4</span>
-                    <span style="color: var(--success); font-weight: 700;">$30.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$25.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 pedidos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$2.600 CLP</strong> (Total diario: $13.000)</p>
-                </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(4, 25000)">Activar VIP 4</button>
-            </div>
-
-            <!-- VIP 5 -->
-            <div class="vip-card" id="card-vip-5">
-                <div class="vip-title">
-                    <span>VIP 5</span>
-                    <span style="color: var(--success); font-weight: 700;">$60.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$50.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 pedidos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$5.500 CLP</strong> (Total diario: $27.500)</p>
-                </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(5, 50000)">Activar VIP 5</button>
-            </div>
-        </div>
-
-        <!-- ================= VISTA PERFIL ================= -->
-        <div id="view-perfil" class="views-section">
-            <div class="card">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Mi Cuenta de Usuario</h3>
-                <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">
-                    <p><strong>Nombre:</strong> <span id="perfil-nombre">Usuario Telegram</span></p>
-                    <p><strong>Nivel actual:</strong> <span id="perfil-vip" style="color: var(--vip-color); font-weight: bold;">Sin VIP Activo</span></p>
-                    <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$2.000 CLP</span></p>
-                </div>
-                <button class="btn-primary" style="background: #ef4444; margin-top: 20px;" onclick="resetDatos()">Reiniciar Datos de Prueba</button>
-            </div>
-        </div>
-
+        <!-- Lista donde se mostrarán los datos desde Firebase -->
+        <h2 class="text-lg font-semibold mb-2 text-slate-300">Guardados en la nube:</h2>
+        <ul id="listaDatos" class="space-y-2">
+            <li class="text-slate-500 text-sm">Cargando datos...</li>
+        </ul>
     </div>
 
-    <!-- Barra de Navegación Inferior -->
-    <nav class="bottom-nav">
-        <a class="nav-item active" onclick="cambiarVista('inicio', this)">
-            <i class="fa-solid fa-house"></i>
-            <span>Inicio</span>
-        </a>
-        <a class="nav-item" onclick="cambiarVista('tareas', this)">
-            <i class="fa-solid fa-box-open"></i>
-            <span>Tareas</span>
-        </a>
-        <a class="nav-item" onclick="cambiarVista('recarga', this)">
-            <i class="fa-solid fa-wallet"></i>
-            <span>Recarga</span>
-        </a>
-        <a class="nav-item" onclick="cambiarVista('vip', this)">
-            <i class="fa-solid fa-crown"></i>
-            <span>VIP</span>
-        </a>
-        <a class="nav-item" onclick="cambiarVista('perfil', this)">
-            <i class="fa-solid fa-user"></i>
-            <span>Perfil</span>
-        </a>
-    </nav>
+    <!-- SDKs de Firebase y Lógica -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <script>
-        // Sistema de Estados (Guardados en localStorage para persistencia)
-        let datosUsuario = JSON.parse(localStorage.getItem('work_user')) || {
-            saldo: 2000,
-            vipActual: 0,
-            tareasHechasHoy: 0
-        };
-
-        // Configuración de ganancias por tarea según nivel VIP
-        const gananciasConfig = {
-            0: 0,
-            1: 200,   // VIP 1: 5 x 200 = 1000 diario
-            2: 500,   // VIP 2: 5 x 500 = 2500 diario
-            3: 1200,  // VIP 3: 5 x 1200 = 6000 diario
-            4: 2600,  // VIP 4: 5 x 2600 = 13000 diario
-            5: 5500   // VIP 5: 5 x 5500 = 27500 diario
-        };
-
-        let tg = window.Telegram.WebApp;
+        // Inicializar Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
-        
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            let nombre = tg.initDataUnsafe.user.first_name;
-            document.getElementById('user-name').innerText = nombre;
-            document.getElementById('perfil-nombre').innerText = nombre;
-            document.getElementById('user-initial').innerText = nombre.charAt(0).toUpperCase();
+            const nombreUsuario = tg.initDataUnsafe.user.first_name;
+            document.getElementById("tituloApp").textContent = `Hola, ${nombreUsuario}`;
         }
 
-        actualizarInterfaz();
+        // Tu configuración exacta de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm3MEWKyFjT5L5ghRZCUyaDJPTj3HVZY",
+            authDomain: "canaldetrabanotareasvip.firebaseapp.com",
+            projectId: "canaldetrabanotareasvip",
+            storageBucket: "canaldetrabanotareasvip.firebasestorage.app",
+            messagingSenderId: "170165775394",
+            appId: "1:170165775394:web:59503fdb4b9bae6dc0ae7b",
+            measurementId: "G-RENYYDEH14"
+        };
 
-        function cambiarVista(vistaId, elementoNav) {
-            document.querySelectorAll('.views-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + vistaId).classList.add('active');
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-            if (elementoNav) {
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                elementoNav.classList.add('active');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        const inputDato = document.getElementById("inputDato");
+        const btnGuardar = document.getElementById("btnGuardar");
+        const listaDatos = document.getElementById("listaDatos");
 
-        function actualizarInterfaz() {
-            let saldoFormateado = "$" + datosUsuario.saldo.toLocaleString('es-CL') + " CLP";
-            document.getElementById('display-saldo').innerText = saldoFormateado;
-            document.getElementById('perfil-saldo').innerText = saldoFormateado;
+        // Guardar datos al hacer clic
+        btnGuardar.addEventListener("click", async () => {
+            const texto = inputDato.value.trim();
+            if (texto === "") return;
 
-            let badge = document.getElementById('header-vip-badge');
-            let perfilVip = document.getElementById('perfil-vip');
-
-            if (datosUsuario.vipActual > 0) {
-                badge.innerText = "VIP " + datosUsuario.vipActual;
-                badge.style.background = "#fef3c7";
-                perfilVip.innerText = "VIP " + datosUsuario.vipActual + " Activo";
-            } else {
-                badge.innerText = "VIP Inactivo";
-                perfilVip.innerText = "Sin VIP Activo";
-            }
-
-            document.getElementById('tareas-completadas-txt').innerText = datosUsuario.tareasHechasHoy + " / 5 completadas";
-            let pagoTarea = gananciasConfig[datosUsuario.vipActual];
-            document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
-
-            localStorage.setItem('work_user', JSON.stringify(datosUsuario));
-        }
-
-        function activarVip(nivel, costoRequerido) {
-            if (datosUsuario.vipActual >= nivel) {
-                alert("¡Ya tienes este nivel VIP o superior activo!");
-                return;
-            }
-            
-            // Simulación de acreditación automática o paso por depósito
-            if (confirm(`Para activar el VIP ${nivel}, debes haber realizado el depósito correspondiente. ¿Confirmar activación simulada de saldo?`)) {
-                datosUsuario.vipActual = nivel;
-                if (nivel === 1) datosUsuario.saldo = 3500;
-                if (nivel === 2) datosUsuario.saldo = 7000;
-                if (nivel === 3) datosUsuario.saldo = 15000;
-                if (nivel === 4) datosUsuario.saldo = 30000;
-                if (nivel === 5) datosUsuario.saldo = 60000;
+            try {
+                await addDoc(collection(db, "tareas"), {
+                    texto: texto,
+                    fecha: new Date(),
+                    usuario: tg.initDataUnsafe?.user?.username || "Anónimo"
+                });
+                inputDato.value = "";
                 
-                datosUsuario.tareasHechasHoy = 0;
-                actualizarInterfaz();
-                alert(`¡Felicidades! Has activado correctamente el VIP ${nivel}.`);
-                cambiarVista('tareas', document.querySelectorAll('.nav-item')[1]);
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            } catch (error) {
+                console.error("Error al guardar: ", error);
+                alert("Hubo un error al guardar el dato.");
             }
-        }
+        });
 
-        function enviarComprobante() {
-            let monto = document.getElementById('input-monto-dep').value;
-            let comp = document.getElementById('input-comprobante').value;
-
-            if(!monto || !comp) {
-                alert("Por favor ingresa el monto y el número de comprobante.");
+        // Leer datos en tiempo real de Firestore
+        onSnapshot(collection(db, "tareas"), (snapshot) => {
+            listaDatos.innerHTML = "";
+            if (snapshot.empty) {
+                listaDatos.innerHTML = `<li class="text-slate-500 text-sm">No hay registros todavía.</li>`;
                 return;
             }
-
-            // Acreditación automática inmediata para pruebas operativas del usuario
-            datosUsuario.saldo += parseInt(monto);
-            actualizarInterfaz();
-            alert(`¡Depósito de $${monto} verificado y acreditado con éxito a tu saldo!`);
-            document.getElementById('input-monto-dep').value = '';
-            document.getElementById('input-comprobante').value = '';
-            cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
-        }
-
-        function procesarPedido() {
-            if (datosUsuario.vipActual === 0) {
-                alert("Debes activar un nivel VIP (como el VIP 1) para empezar a procesar pedidos.");
-                cambiarVista('vip', document.querySelectorAll('.nav-item')[3]);
-                return;
-            }
-
-            if (datosUsuario.tareasHechasHoy >= 5) {
-                alert("Ya has completado tus 5 tareas diarias de hoy. ¡Vuelve mañana!");
-                return;
-            }
-
-            let pago = gananciasConfig[datosUsuario.vipActual];
-            datosUsuario.saldo += pago;
-            datosUsuario.tareasHechasHoy += 1;
-            actualizarInterfaz();
-
-            alert(`¡Pedido procesado con éxito! Has ganado +$${pago} CLP.`);
-        }
-
-        function resetDatos() {
-            if(confirm("¿Deseas reiniciar los datos de la app de prueba?")) {
-                localStorage.removeItem('work_user');
-                location.reload();
-            }
-        }
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const li = document.createElement("li");
+                li.className = "bg-slate-700 p-3 rounded text-white flex justify-between items-center";
+                li.textContent = data.texto;
+                listaDatos.appendChild(li);
+            });
+        });
     </script>
 </body>
 </html>
