@@ -180,6 +180,14 @@
 
         .nav-item i { font-size: 18px; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
+        
+        .admin-panel {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -189,12 +197,24 @@
             <div class="header-left">
                 <div class="user-profile" id="user-initial">U</div>
                 <div>
-                    <h3 style="font-size: 14px; font-weight: 700;" id="user-name">Trabajador Online</h3>
+                    <h3 style="font-size: 14px; font-weight: 700;" id="user-name" onclick="chequearAdmin()">Trabajador Online</h3>
                     <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
                 </div>
             </div>
-            <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px;"></i>
+            <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])"></i>
         </header>
+
+        <!-- ================= PANEL DE ADMINISTRADOR (Oculto para usuarios normales) ================= -->
+        <div id="view-admin" class="views-section">
+            <div class="card admin-panel">
+                <h3 style="font-size: 16px; font-weight: 700; color: #b45309; margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> Panel de Administración</h3>
+                <p style="font-size: 12px; color: #78350f; margin-bottom: 12px;">Aquí puedes ver los comprobantes enviados por los usuarios y aprobarlos para activar su VIP.</p>
+                <div id="lista-depositos-pendientes">
+                    <p style="font-size: 13px; color: var(--text-muted);">Cargando solicitudes...</p>
+                </div>
+                <button class="btn-primary" style="background: #64748b; margin-top: 10px;" onclick="cambiarVista('inicio', document.querySelectorAll('.nav-item')[0])">Volver al Inicio</button>
+            </div>
+        </div>
 
         <!-- ================= VISTA INICIO ================= -->
         <div id="view-inicio" class="views-section active">
@@ -254,6 +274,16 @@
                 </div>
 
                 <div class="input-group">
+                    <label>Selecciona el VIP que deseas</label>
+                    <select id="input-vip-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: white; outline: none; margin-bottom: 8px;">
+                        <option value="1">VIP 1 (Depósito $1.500)</option>
+                        <option value="2">VIP 2 (Depósito $5.000)</option>
+                        <option value="3">VIP 3 (Depósito $12.000)</option>
+                        <option value="4">VIP 4 (Depósito $25.000)</option>
+                        <option value="5">VIP 5 (Depósito $50.000)</option>
+                    </select>
+                </div>
+                <div class="input-group">
                     <label>Monto depositado (CLP)</label>
                     <input type="number" id="input-monto-dep" placeholder="Ej: 1500">
                 </div>
@@ -270,11 +300,11 @@
         <div id="view-vip" class="views-section">
             <div class="card" style="margin-bottom: 12px;">
                 <h3 style="font-size: 15px; font-weight: 700;">Niveles VIP Disponibles</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Elige tu nivel de trabajo según tu inversión.</p>
+                <p style="font-size: 12px; color: var(--text-muted);">Realiza una recarga para activar tu nivel y comenzar a ganar.</p>
             </div>
 
             <!-- VIP 1 -->
-            <div class="vip-card" id="card-vip-1">
+            <div class="vip-card">
                 <div class="vip-title">
                     <span>VIP 1 (Básico)</span>
                     <span style="color: var(--success); font-weight: 700;">$3.500 Total operativo</span>
@@ -284,11 +314,10 @@
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$200 CLP</strong> (Total diario: $1.000)</p>
                 </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(1, 1500)">Activar VIP 1</button>
             </div>
 
             <!-- VIP 2 -->
-            <div class="vip-card" id="card-vip-2">
+            <div class="vip-card">
                 <div class="vip-title">
                     <span>VIP 2</span>
                     <span style="color: var(--success); font-weight: 700;">$7.000 Total operativo</span>
@@ -298,11 +327,10 @@
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$500 CLP</strong> (Total diario: $2.500)</p>
                 </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(2, 5000)">Activar VIP 2</button>
             </div>
 
             <!-- VIP 3 -->
-            <div class="vip-card" id="card-vip-3">
+            <div class="vip-card">
                 <div class="vip-title">
                     <span>VIP 3</span>
                     <span style="color: var(--success); font-weight: 700;">$15.000 Total operativo</span>
@@ -312,11 +340,10 @@
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$1.200 CLP</strong> (Total diario: $6.000)</p>
                 </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(3, 12000)">Activar VIP 3</button>
             </div>
 
             <!-- VIP 4 -->
-            <div class="vip-card" id="card-vip-4">
+            <div class="vip-card">
                 <div class="vip-title">
                     <span>VIP 4</span>
                     <span style="color: var(--success); font-weight: 700;">$30.000 Total operativo</span>
@@ -326,11 +353,10 @@
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$2.600 CLP</strong> (Total diario: $13.000)</p>
                 </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(4, 25000)">Activar VIP 4</button>
             </div>
 
             <!-- VIP 5 -->
-            <div class="vip-card" id="card-vip-5">
+            <div class="vip-card">
                 <div class="vip-title">
                     <span>VIP 5</span>
                     <span style="color: var(--success); font-weight: 700;">$60.000 Total operativo</span>
@@ -340,8 +366,9 @@
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$5.500 CLP</strong> (Total diario: $27.500)</p>
                 </div>
-                <button class="btn-primary" style="margin-top: 10px; padding: 8px;" onclick="activarVip(5, 50000)">Activar VIP 5</button>
             </div>
+            
+            <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Recargar y Activar</button>
         </div>
 
         <!-- ================= VISTA PERFIL ================= -->
@@ -350,6 +377,7 @@
                 <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Mi Cuenta de Usuario</h3>
                 <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">
                     <p><strong>Nombre:</strong> <span id="perfil-nombre">Usuario Telegram</span></p>
+                    <p><strong>ID Telegram:</strong> <span id="perfil-id">--</span></p>
                     <p><strong>Nivel actual:</strong> <span id="perfil-vip" style="color: var(--vip-color); font-weight: bold;">Sin VIP Activo</span></p>
                     <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$0 CLP</span></p>
                 </div>
@@ -383,9 +411,9 @@
     </nav>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Conectado a tu proyecto 'canaldetrabanotareasvip')
+        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
-            apiKey: "AIzaSyAm3MEWKyFtjT5L5ghRZCUyaD...", // Oculto/Integrado de tu consola
+            apiKey: "AIzaSyAm3MEWKyFtjT5L5ghRZCUyaD...",
             authDomain: "canaldetrabanotareasvip.firebaseapp.com",
             projectId: "canaldetrabanotareasvip",
             storageBucket: "canaldetrabanotareasvip.appspot.com",
@@ -394,19 +422,20 @@
             measurementId: "G-RENYYDEH14"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         let userId = "usuario_demo";
         let datosUsuario = {
-            saldo: 2000,
+            saldo: 0,
             vipActual: 0,
             tareasHechasHoy: 0,
             nombre: "Trabajador Online"
         };
 
-        // Configuración de ganancias por tarea según nivel VIP
+        // PON TU ID DE TELEGRAM REAL AQUÍ ABAJO PARA SER ADMINISTRADOR (o haz clic 5 veces en tu nombre)
+        let adminIds = ["TU_ID_DE_TELEGRAM"]; 
+
         const gananciasConfig = {
             0: 0,
             1: 200,   
@@ -425,13 +454,12 @@
             datosUsuario.nombre = nombre;
             document.getElementById('user-name').innerText = nombre;
             document.getElementById('perfil-nombre').innerText = nombre;
+            document.getElementById('perfil-id').innerText = userId;
             document.getElementById('user-initial').innerText = nombre.charAt(0).toUpperCase();
         }
 
-        // Referencia al documento del usuario en Firestore
         const userRef = db.collection("usuarios").doc(userId);
 
-        // Sincronización en tiempo real con Firestore
         userRef.onSnapshot((doc) => {
             if (doc.exists) {
                 datosUsuario = doc.data();
@@ -462,7 +490,6 @@
 
             if (datosUsuario.vipActual > 0) {
                 badge.innerText = "VIP " + datosUsuario.vipActual;
-                badge.style.background = "#fef3c7";
                 perfilVip.innerText = "VIP " + datosUsuario.vipActual + " Activo";
             } else {
                 badge.innerText = "VIP Inactivo";
@@ -474,32 +501,18 @@
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
         }
 
-        function guardarEnNube() {
-            userRef.set(datosUsuario, { merge: true });
-        }
-
-        function activarVip(nivel, costoRequerido) {
-            if (datosUsuario.vipActual >= nivel) {
-                alert("¡Ya tienes este nivel VIP o superior activo!");
-                return;
-            }
-            
-            if (confirm(`¿Confirmar activación del VIP ${nivel}?`)) {
-                datosUsuario.vipActual = nivel;
-                if (nivel === 1) datosUsuario.saldo = 3500;
-                if (nivel === 2) datosUsuario.saldo = 7000;
-                if (nivel === 3) datosUsuario.saldo = 15000;
-                if (nivel === 4) datosUsuario.saldo = 30000;
-                if (nivel === 5) datosUsuario.saldo = 60000;
-                
-                datosUsuario.tareasHechasHoy = 0;
-                guardarEnNube();
-                alert(`¡Felicidades! Has activado correctamente el VIP ${nivel}.`);
-                cambiarVista('tareas', document.querySelectorAll('.nav-item')[1]);
+        let clicksAdmin = 0;
+        function chequearAdmin() {
+            clicksAdmin++;
+            if (adminIds.includes(userId) || clicksAdmin >= 5) {
+                cargarDepositosPendientes();
+                cambiarVista('admin');
+                clicksAdmin = 0;
             }
         }
 
         function enviarComprobante() {
+            let vipDeseado = parseInt(document.getElementById('input-vip-select').value);
             let monto = document.getElementById('input-monto-dep').value;
             let comp = document.getElementById('input-comprobante').value;
 
@@ -511,23 +524,72 @@
             db.collection("depositos").add({
                 userId: userId,
                 nombre: datosUsuario.nombre,
+                vipDeseado: vipDeseado,
                 monto: parseFloat(monto),
                 comprobante: comp,
                 fecha: new Date(),
                 estado: "pendiente"
             }).then(() => {
-                alert(`¡Comprobante de $${monto} enviado para validación!`);
+                alert(`¡Comprobante de $${monto} enviado! El administrador lo revisará pronto para activar tu VIP.`);
                 document.getElementById('input-monto-dep').value = '';
                 document.getElementById('input-comprobante').value = '';
                 cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
             }).catch(error => {
-                alert("Error al enviar el comprobante: " + error.message);
+                alert("Error al enviar: " + error.message);
+            });
+        }
+
+        function cargarDepositosPendientes() {
+            let contenedor = document.getElementById('lista-depositos-pendientes');
+            contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>Buscando solicitudes...</p>";
+
+            db.collection("depositos").where("estado", "==", "pendiente").get().then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay depósitos pendientes por aprobar.</p>";
+                    return;
+                }
+                let html = "";
+                querySnapshot.forEach((doc) => {
+                    let d = doc.data();
+                    html += `
+                        <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:12px;">
+                            <p><strong>Usuario:</strong> ${d.nombre} (ID: ${d.userId})</p>
+                            <p><strong>VIP Solicitado:</strong> VIP ${d.vipDeseado}</p>
+                            <p><strong>Monto:</strong> $${d.monto} CLP</p>
+                            <p><strong>Comprobante:</strong> ${d.comprobante}</p>
+                            <button class="btn-primary" style="margin-top:8px; padding:6px; background:var(--success);" onclick="aprobarDeposito('${doc.id}', '${d.userId}', ${d.vipDeseado})">Aprobar y Activar VIP</button>
+                        </div>
+                    `;
+                });
+                contenedor.innerHTML = html;
+            });
+        }
+
+        function aprobarDeposito(docId, targetUserId, vipNivel) {
+            if (!confirm(`¿Estás seguro de aprobar este depósito y activar el VIP ${vipNivel} al usuario?`)) return;
+
+            let saldosInciales = { 1: 3500, 2: 7000, 3: 15000, 4: 30000, 5: 60000 };
+            let saldoAsignado = saldosInciales[vipNivel] || 3500;
+
+            // Actualizar usuario en Firestore
+            db.collection("usuarios").doc(targetUserId).set({
+                vipActual: vipNivel,
+                saldo: saldoAsignado,
+                tareasHechasHoy: 0
+            }, { merge: true }).then(() => {
+                // Marcar depósito como aprobado
+                db.collection("depositos").doc(docId).update({ estado: "aprobado" }).then(() => {
+                    alert("¡Depósito aprobado con éxito! El usuario ya tiene su VIP activo.");
+                    cargarDepositosPendientes();
+                });
+            }).catch(err => {
+                alert("Error al aprobar: " + err.message);
             });
         }
 
         function procesarPedido() {
             if (datosUsuario.vipActual === 0) {
-                alert("Debes activar un nivel VIP (como el VIP 1) para empezar a procesar pedidos.");
+                alert("No tienes ningún nivel VIP activo. Realiza una recarga y espera la aprobación del administrador.");
                 cambiarVista('vip', document.querySelectorAll('.nav-item')[3]);
                 return;
             }
@@ -541,7 +603,7 @@
             datosUsuario.saldo += pago;
             datosUsuario.tareasHechasHoy = (datosUsuario.tareasHechasHoy || 0) + 1;
             
-            guardarEnNube();
+            userRef.set(datosUsuario, { merge: true });
             alert(`¡Pedido procesado con éxito! Has ganado +$${pago} CLP.`);
         }
     </script>
