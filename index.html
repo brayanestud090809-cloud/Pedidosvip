@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -204,7 +205,7 @@
             <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])"></i>
         </header>
 
-        <!-- ================= PANEL DE ADMINISTRADOR (Oculto para usuarios normales) ================= -->
+        <!-- ================= PANEL DE ADMINISTRADOR ================= -->
         <div id="view-admin" class="views-section">
             <div class="card admin-panel">
                 <h3 style="font-size: 16px; font-weight: 700; color: #b45309; margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> Panel de Administración</h3>
@@ -300,7 +301,7 @@
         <div id="view-vip" class="views-section">
             <div class="card" style="margin-bottom: 12px;">
                 <h3 style="font-size: 15px; font-weight: 700;">Niveles VIP Disponibles</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Realiza una recarga para activar tu nivel y comenzar a ganar.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Para activar tu nivel VIP, realiza una transferencia y reporta tu pago en la sección Recarga. Un administrador verificará y aprobará tu acceso.</p>
             </div>
 
             <!-- VIP 1 -->
@@ -310,7 +311,7 @@
                     <span style="color: var(--success); font-weight: 700;">$3.500 Total operativo</span>
                 </div>
                 <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$1.500 CLP</strong> (+ $2.000 de regalo app)</p>
+                    <p>• Depósito requerido: <strong>$1.500 CLP</strong> (+ $2.000 de regalo app)</p>
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$200 CLP</strong> (Total diario: $1.000)</p>
                 </div>
@@ -323,7 +324,7 @@
                     <span style="color: var(--success); font-weight: 700;">$7.000 Total operativo</span>
                 </div>
                 <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$5.000 CLP</strong></p>
+                    <p>• Depósito requerido: <strong>$5.000 CLP</strong></p>
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$500 CLP</strong> (Total diario: $2.500)</p>
                 </div>
@@ -336,7 +337,7 @@
                     <span style="color: var(--success); font-weight: 700;">$15.000 Total operativo</span>
                 </div>
                 <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$12.000 CLP</strong></p>
+                    <p>• Depósito requerido: <strong>$12.000 CLP</strong></p>
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$1.200 CLP</strong> (Total diario: $6.000)</p>
                 </div>
@@ -349,7 +350,7 @@
                     <span style="color: var(--success); font-weight: 700;">$30.000 Total operativo</span>
                 </div>
                 <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$25.000 CLP</strong></p>
+                    <p>• Depósito requerido: <strong>$25.000 CLP</strong></p>
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$2.600 CLP</strong> (Total diario: $13.000)</p>
                 </div>
@@ -362,13 +363,13 @@
                     <span style="color: var(--success); font-weight: 700;">$60.000 Total operativo</span>
                 </div>
                 <div class="vip-info">
-                    <p>• Requiere depósito de: <strong>$50.000 CLP</strong></p>
+                    <p>• Depósito requerido: <strong>$50.000 CLP</strong></p>
                     <p>• Tareas diarias: <strong>5 pedidos</strong></p>
                     <p>• Ganancia por tarea: <strong>$5.500 CLP</strong> (Total diario: $27.500)</p>
                 </div>
             </div>
             
-            <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Recargar y Activar</button>
+            <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Recargar y Notificar Pago</button>
         </div>
 
         <!-- ================= VISTA PERFIL ================= -->
@@ -433,7 +434,6 @@
             nombre: "Trabajador Online"
         };
 
-        // PON TU ID DE TELEGRAM REAL AQUÍ ABAJO PARA SER ADMINISTRADOR (o haz clic 5 veces en tu nombre)
         let adminIds = ["TU_ID_DE_TELEGRAM"]; 
 
         const gananciasConfig = {
@@ -571,13 +571,11 @@
             let saldosInciales = { 1: 3500, 2: 7000, 3: 15000, 4: 30000, 5: 60000 };
             let saldoAsignado = saldosInciales[vipNivel] || 3500;
 
-            // Actualizar usuario en Firestore
             db.collection("usuarios").doc(targetUserId).set({
                 vipActual: vipNivel,
                 saldo: saldoAsignado,
                 tareasHechasHoy: 0
             }, { merge: true }).then(() => {
-                // Marcar depósito como aprobado
                 db.collection("depositos").doc(docId).update({ estado: "aprobado" }).then(() => {
                     alert("¡Depósito aprobado con éxito! El usuario ya tiene su VIP activo.");
                     cargarDepositosPendientes();
