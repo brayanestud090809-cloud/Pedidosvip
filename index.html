@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -380,7 +379,7 @@
                     <p><strong>Nombre:</strong> <span id="perfil-nombre">Usuario Telegram</span></p>
                     <p><strong>ID Telegram:</strong> <span id="perfil-id">--</span></p>
                     <p><strong>Nivel actual:</strong> <span id="perfil-vip" style="color: var(--vip-color); font-weight: bold;">Sin VIP Activo</span></p>
-                    <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$0 CLP</span></p>
+                    <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$2.000 CLP</span></p>
                 </div>
             </div>
         </div>
@@ -428,7 +427,7 @@
 
         let userId = "usuario_demo";
         let datosUsuario = {
-            saldo: 0,
+            saldo: 2000,
             vipActual: 0,
             tareasHechasHoy: 0,
             nombre: "Trabajador Online"
@@ -463,7 +462,16 @@
         userRef.onSnapshot((doc) => {
             if (doc.exists) {
                 datosUsuario = doc.data();
+                if (datosUsuario.saldo === undefined) {
+                    datosUsuario.saldo = 2000;
+                }
             } else {
+                datosUsuario = {
+                    saldo: 2000,
+                    vipActual: 0,
+                    tareasHechasHoy: 0,
+                    nombre: tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Trabajador Online"
+                };
                 userRef.set(datosUsuario);
             }
             actualizarInterfaz();
@@ -543,33 +551,43 @@
             let contenedor = document.getElementById('lista-depositos-pendientes');
             contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>Buscando solicitudes...</p>";
 
-            db.collection("depositos").where("estado", "==", "pendiente").get().then((querySnapshot) => {
+            db.collection("depositos").get().then((querySnapshot) => {
                 if (querySnapshot.empty) {
-                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay depósitos pendientes por aprobar.</p>";
+                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay solicitudes registradas.</p>";
                     return;
                 }
                 let html = "";
                 querySnapshot.forEach((doc) => {
                     let d = doc.data();
+                    let estadoActual = d.estado || "pendiente";
+                    
+                    if (estadoActual === "aprobado") return;
+
                     html += `
                         <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:12px;">
                             <p><strong>Usuario:</strong> ${d.nombre} (ID: ${d.userId})</p>
                             <p><strong>VIP Solicitado:</strong> VIP ${d.vipDeseado}</p>
                             <p><strong>Monto:</strong> $${d.monto} CLP</p>
                             <p><strong>Comprobante:</strong> ${d.comprobante}</p>
+                            <p><strong>Estado:</strong> ${estadoActual}</p>
                             <button class="btn-primary" style="margin-top:8px; padding:6px; background:var(--success);" onclick="aprobarDeposito('${doc.id}', '${d.userId}', ${d.vipDeseado})">Aprobar y Activar VIP</button>
                         </div>
                     `;
                 });
-                contenedor.innerHTML = html;
+                
+                if(html === "") {
+                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay depósitos pendientes por aprobar.</p>";
+                } else {
+                    contenedor.innerHTML = html;
+                }
             });
         }
 
         function aprobarDeposito(docId, targetUserId, vipNivel) {
             if (!confirm(`¿Estás seguro de aprobar este depósito y activar el VIP ${vipNivel} al usuario?`)) return;
 
-            let saldosInciales = { 1: 3500, 2: 7000, 3: 15000, 4: 30000, 5: 60000 };
-            let saldoAsignado = saldosInciales[vipNivel] || 3500;
+            let saldosIniciales = { 1: 3500, 2: 7000, 3: 15000, 4: 30000, 5: 60000 };
+            let saldoAsignado = saldosIniciales[vipNivel] || 3500;
 
             db.collection("usuarios").doc(targetUserId).set({
                 vipActual: vipNivel,
