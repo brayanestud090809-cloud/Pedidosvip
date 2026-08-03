@@ -718,8 +718,8 @@
             let pagoTarea = gananciasConfig[datosUsuario.vipActual] || 0;
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
 
-            // Generar Link de Invitación personalizado
-            let botUsername = "TuBotDeTelegram"; 
+            // Generar Link de Invitación con tu bot configurado
+            let botUsername = "Trabajosvipcanalbot"; 
             let linkReferido = `https://t.me/${botUsername}?start=${userId}`;
             document.getElementById('link-referido-input').value = linkReferido;
 
