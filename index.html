@@ -10,6 +10,7 @@
     <!-- SDK de Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
     <style>
         :root {
@@ -215,6 +216,30 @@
             <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px; cursor: pointer;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])"></i>
         </header>
 
+        <!-- ================= VISTA AUTENTICACIÓN POR TELÉFONO ================= -->
+        <div id="view-auth" class="views-section">
+            <div class="card">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;"><i class="fa-solid fa-phone"></i> Verificación Telefónica</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">Ingresa tu número de teléfono con código de país para iniciar sesión o registrarte:</p>
+
+                <div class="input-group">
+                    <label>Número de Teléfono (Ej: +56912345678)</label>
+                    <input type="tel" id="input-telefono" placeholder="+569XXXXXXXX">
+                </div>
+
+                <button class="btn-primary" id="btn-enviar-codigo" onclick="enviarCodigoSMS()">Enviar Código SMS</button>
+
+                <div id="contenedor-codigo-sms" style="display: none; margin-top: 14px;">
+                    <div class="input-group">
+                        <label>Código de Verificación (6 dígitos)</label>
+                        <input type="text" id="input-codigo-sms" placeholder="123456">
+                    </div>
+                    <button class="btn-primary" style="background: var(--success);" onclick="verificarCodigoSMS()">Verificar y Entrar</button>
+                </div>
+                <div id="recaptcha-container"></div>
+            </div>
+        </div>
+
         <!-- ================= PANEL DE ADMINISTRADOR ================= -->
         <div id="view-admin" class="views-section">
             <div class="card admin-panel">
@@ -236,7 +261,7 @@
         </div>
 
         <!-- ================= VISTA INICIO ================= -->
-        <div id="view-inicio" class="views-section active">
+        <div id="view-inicio" class="views-section">
             <div class="card">
                 <div class="balance-header">
                     <div class="balance-box">
@@ -469,8 +494,8 @@
             <div class="card">
                 <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Mi Cuenta de Usuario</h3>
                 <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">
-                    <p><strong>Nombre:</strong> <span id="perfil-nombre">Usuario Telegram</span></p>
-                    <p><strong>ID Telegram:</strong> <span id="perfil-id">--</span></p>
+                    <p><strong>Nombre:</strong> <span id="perfil-nombre">Usuario Verificado</span></p>
+                    <p><strong>Teléfono / ID:</strong> <span id="perfil-id">--</span></p>
                     <p><strong>Nivel actual:</strong> <span id="perfil-vip" style="color: var(--vip-color); font-weight: bold;">Sin VIP Activo</span></p>
                     <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$2.000 CLP</span></p>
                 </div>
@@ -517,8 +542,9 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        let userId = "usuario_demo";
+        let userId = null;
         let datosUsuario = {
             saldo: 2000,
             vipActual: 0,
@@ -527,7 +553,7 @@
             invitadoPor: null
         };
 
-        let adminIds = ["TU_ID_DE_TELEGRAM"]; // Reemplaza con tu ID numérico de Telegram
+        let adminIds = ["TU_ID_DE_TELEGRAM"]; // Reemplaza con tu ID numérico de Telegram o UID de Firebase
 
         const gananciasConfig = {
             0: 0,
@@ -552,49 +578,103 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userId = tg.initDataUnsafe.user.id.toString();
-            let nombre = tg.initDataUnsafe.user.first_name;
-            datosUsuario.nombre = nombre;
-            document.getElementById('user-name').innerText = nombre;
-            document.getElementById('perfil-nombre').innerText = nombre;
-            document.getElementById('perfil-id').innerText = userId;
-            document.getElementById('user-initial').innerText = nombre.charAt(0).toUpperCase();
-        }
-
         // Obtener ID de referido desde la URL de Telegram (si abrió un link tipo t.me/bot?start=ID_REFERIDOR)
         let referidorId = null;
         if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
             referidorId = tg.initDataUnsafe.start_param;
         }
 
-        const userRef = db.collection("usuarios").doc(userId);
-
-        userRef.onSnapshot((doc) => {
-            if (doc.exists) {
-                datosUsuario = doc.data();
-                if (datosUsuario.saldo === undefined) {
-                    datosUsuario.saldo = 2000;
+        // CONTROL DE AUTENTICACIÓN FIREBASE (TELÉFONO)
+        window.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    userId = user.uid;
+                    let telUser = user.phoneNumber || "Usuario Teléfono";
+                    document.getElementById('perfil-id').innerText = telUser;
+                    inicializarDatosUsuario();
+                } else {
+                    cambiarVistaAuth('auth');
                 }
-            } else {
-                // Nuevo usuario: si viene con referido, le damos $300 CLP de bono de bienvenida
-                let saldoInicial = referidorId ? 2300 : 2000;
-                datosUsuario = {
-                    saldo: saldoInicial,
-                    vipActual: 0,
-                    tareasHechasHoy: 0,
-                    nombre: tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Trabajador Online",
-                    invitadoPor: referidorId || null
-                };
-                userRef.set(datosUsuario).then(() => {
-                    // Si fue invitado, le sumamos +$500 CLP al usuario que lo invitó
-                    if (referidorId && referidorId !== userId) {
-                        sumarBonoReferidor(referidorId);
-                    }
+            });
+        });
+
+        function cambiarVistaAuth(vistaId) {
+            document.querySelectorAll('.views-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + vistaId).classList.add('active');
+            // Ocultar barra de navegación inferior si está en auth
+            document.querySelector('.bottom-nav').style.display = (vistaId === 'auth') ? 'none' : 'flex';
+        }
+
+        function enviarCodigoSMS() {
+            let telefono = document.getElementById('input-telefono').value;
+            if(!telefono || telefono.length < 8) {
+                alert("Por favor ingresa un número de teléfono válido con código de país (ej: +56912345678).");
+                return;
+            }
+
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                    'size': 'invisible'
                 });
             }
-            actualizarInterfaz();
-        });
+
+            let appVerifier = window.recaptchaVerifier;
+            auth.signInWithPhoneNumber(telefono, appVerifier)
+                .then((confirmationResult) => {
+                    window.confirmationResult = confirmationResult;
+                    alert("¡Código SMS enviado con éxito!");
+                    document.getElementById('contenedor-codigo-sms').style.display = 'block';
+                    document.getElementById('btn-enviar-codigo').style.display = 'none';
+                }).catch((error) => {
+                    alert("Error al enviar SMS: " + error.message);
+                });
+        }
+
+        function verificarCodigoSMS() {
+            let codigo = document.getElementById('input-codigo-sms').value;
+            if(!codigo || codigo.length !== 6) {
+                alert("Ingresa el código de 6 dígitos recibido por SMS.");
+                return;
+            }
+
+            window.confirmationResult.confirm(codigo).then((result) => {
+                alert("¡Verificación exitosa!");
+                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+                document.querySelector('.bottom-nav').style.display = 'flex';
+            }).catch((error) => {
+                alert("Código incorrecto o expirado: " + error.message);
+            });
+        }
+
+        function inicializarDatosUsuario() {
+            const userRef = db.collection("usuarios").doc(userId);
+
+            userRef.onSnapshot((doc) => {
+                if (doc.exists) {
+                    datosUsuario = doc.data();
+                    if (datosUsuario.saldo === undefined) {
+                        datosUsuario.saldo = 2000;
+                    }
+                } else {
+                    // Nuevo usuario: si viene con referido, le damos $300 CLP de bono de bienvenida
+                    let saldoInicial = referidorId ? 2300 : 2000;
+                    datosUsuario = {
+                        saldo: saldoInicial,
+                        vipActual: 0,
+                        tareasHechasHoy: 0,
+                        nombre: "Trabajador Online",
+                        invitadoPor: referidorId || null
+                    };
+                    userRef.set(datosUsuario).then(() => {
+                        // Si fue invitado, le sumamos +$500 CLP al usuario que lo invitó
+                        if (referidorId && referidorId !== userId) {
+                            sumarBonoReferidor(referidorId);
+                        }
+                    });
+                }
+                actualizarInterfaz();
+            });
+        }
 
         function sumarBonoReferidor(idReferidor) {
             let refRef = db.collection("usuarios").doc(idReferidor);
@@ -638,8 +718,7 @@
             let pagoTarea = gananciasConfig[datosUsuario.vipActual] || 0;
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
 
-            // Generar Link de Invitación personalizado para el bot de Telegram
-            // Reemplaza 'TuBotDeTelegram' con el usuario real de tu bot sin el @
+            // Generar Link de Invitación personalizado
             let botUsername = "TuBotDeTelegram"; 
             let linkReferido = `https://t.me/${botUsername}?start=${userId}`;
             document.getElementById('link-referido-input').value = linkReferido;
@@ -878,6 +957,7 @@
             datosUsuario.saldo += pago;
             datosUsuario.tareasHechasHoy = (datosUsuario.tareasHechasHoy || 0) + 1;
             
+            const userRef = db.collection("usuarios").doc(userId);
             userRef.set(datosUsuario, { merge: true }).then(() => {
                 alert(`¡Tarea completada con éxito! Has ganado +$${pago} CLP.`);
                 document.getElementById('tarea-activa-container').style.display = 'none';
