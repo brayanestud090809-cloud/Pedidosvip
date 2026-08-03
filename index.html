@@ -219,11 +219,19 @@
         <div id="view-admin" class="views-section">
             <div class="card admin-panel">
                 <h3 style="font-size: 16px; font-weight: 700; color: #b45309; margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> Panel de Administración</h3>
-                <p style="font-size: 12px; color: #78350f; margin-bottom: 12px;">Aquí puedes ver los comprobantes enviados por los usuarios y aprobarlos para activar su VIP.</p>
+                <p style="font-size: 12px; color: #78350f; margin-bottom: 12px;">Gestión de solicitudes de depósitos y retiros de los usuarios.</p>
+                
+                <h4 style="font-size: 14px; font-weight: 700; color: #b45309; margin-top: 10px; margin-bottom: 6px;">Depósitos Pendientes:</h4>
                 <div id="lista-depositos-pendientes">
-                    <p style="font-size: 13px; color: var(--text-muted);">Cargando solicitudes...</p>
+                    <p style="font-size: 13px; color: var(--text-muted);">Cargando depósitos...</p>
                 </div>
-                <button class="btn-primary" style="background: #64748b; margin-top: 10px;" onclick="cambiarVista('inicio', document.querySelectorAll('.nav-item')[0])">Volver al Inicio</button>
+
+                <h4 style="font-size: 14px; font-weight: 700; color: #b45309; margin-top: 16px; margin-bottom: 6px;">Retiros Pendientes:</h4>
+                <div id="lista-retiros-pendientes">
+                    <p style="font-size: 13px; color: var(--text-muted);">Cargando retiros...</p>
+                </div>
+
+                <button class="btn-primary" style="background: #64748b; margin-top: 14px;" onclick="cambiarVista('inicio', document.querySelectorAll('.nav-item')[0])">Volver al Inicio</button>
             </div>
         </div>
 
@@ -235,7 +243,10 @@
                         <span class="label">Saldo Total en Cuenta</span>
                         <h2 class="amount" id="display-saldo">$0 CLP</h2>
                     </div>
-                    <button style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:20px; font-size:11px; font-weight:600; cursor: pointer;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Depositar</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor: pointer;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Depositar</button>
+                        <button style="background:var(--success-bg); color:var(--success); border:none; padding:8px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor: pointer;" onclick="cambiarVista('retirar', document.querySelectorAll('.nav-item')[2])">Retirar</button>
+                    </div>
                 </div>
             </div>
 
@@ -243,6 +254,12 @@
                 <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">▶️ Sistema de Tareas YouTube</h3>
                 <p style="font-size: 12px; opacity: 0.8; line-height: 1.4;">Gana dinero dando like a videos patrocinados de YouTube según tu nivel VIP activo.</p>
                 <button class="btn-primary" style="background: var(--success); margin-top: 12px;" onclick="cambiarVista('tareas', document.querySelectorAll('.nav-item')[1])">Ir a hacer Tareas</button>
+            </div>
+
+            <div class="card" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white;">
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;"><i class="fa-solid fa-users"></i> Invita y Gana</h3>
+                <p style="font-size: 12px; opacity: 0.9; line-height: 1.4;">Invita amigos: ellos ganan <strong>$300 CLP</strong> y tú ganas <strong>$500 CLP</strong> por cada invitado.</p>
+                <button class="btn-primary" style="background: white; color: var(--primary); margin-top: 12px;" onclick="cambiarVista('invitar', document.querySelectorAll('.nav-item')[3])">Ver mi Link de Invitado</button>
             </div>
         </div>
 
@@ -278,39 +295,97 @@
             </div>
         </div>
 
-        <!-- ================= VISTA RECARGAS ================= -->
+        <!-- ================= VISTA RECARGAS Y RETIROS ================= -->
         <div id="view-recarga" class="views-section">
             <div class="card">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Reportar Pago / Recarga</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Una vez que hayas realizado la transferencia a la cuenta entregada por el administrador en el chat, completa los siguientes datos para notificar tu pago:</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+                    <button class="btn-primary" style="margin-top:0; background:var(--primary);" onclick="mostrarSubPestanaRecarga('recargar')">Depositar</button>
+                    <button class="btn-primary" style="margin-top:0; background:#64748b;" onclick="mostrarSubPestanaRecarga('retirar')">Retirar Dinero</button>
+                </div>
+
+                <!-- FORMULARIO RECARGA -->
+                <div id="sub-recarga-form">
+                    <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Reportar Pago / Recarga</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Completa los datos de tu transferencia enviada al administrador:</p>
+
+                    <div class="input-group">
+                        <label>Selecciona el VIP que deseas activar</label>
+                        <select id="input-vip-select">
+                            <option value="1">VIP 1 (Depósito $1.500)</option>
+                            <option value="2">VIP 2 (Depósito $5.000)</option>
+                            <option value="3">VIP 3 (Depósito $12.000)</option>
+                            <option value="4">VIP 4 (Depósito $25.000)</option>
+                            <option value="5">VIP 5 (Depósito $50.000)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>¿Desde qué banco transferiste?</label>
+                        <input type="text" id="input-banco-origen" placeholder="Ej: BancoEstado, Santander, etc.">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Monto depositado (CLP)</label>
+                        <input type="number" id="input-monto-dep" placeholder="Ej: 1500">
+                    </div>
+
+                    <div class="input-group" style="margin-top: 8px;">
+                        <label>Número de Comprobante / Operación</label>
+                        <input type="text" id="input-comprobante" placeholder="Ej: 98765432">
+                    </div>
+
+                    <button class="btn-primary" onclick="enviarComprobante()">Notificar Depósito al Administrador</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VISTA RETIRAR DINERO ================= -->
+        <div id="view-retirar" class="views-section">
+            <div class="card">
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Solicitar Retiro de Dinero</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Transfiere tus ganancias a tu cuenta bancaria o cuenta rut:</p>
 
                 <div class="input-group">
-                    <label>Selecciona el VIP que deseas activar</label>
-                    <select id="input-vip-select">
-                        <option value="1">VIP 1 (Depósito $1.500)</option>
-                        <option value="2">VIP 2 (Depósito $5.000)</option>
-                        <option value="3">VIP 3 (Depósito $12.000)</option>
-                        <option value="4">VIP 4 (Depósito $25.000)</option>
-                        <option value="5">VIP 5 (Depósito $50.000)</option>
-                    </select>
+                    <label>Monto a retirar (CLP)</label>
+                    <input type="number" id="input-monto-retiro" placeholder="Ej: 5000">
                 </div>
 
                 <div class="input-group">
-                    <label>¿Desde qué banco transferiste?</label>
-                    <input type="text" id="input-banco-origen" placeholder="Ej: BancoEstado, Santander, etc.">
+                    <label>Nombre del titular de la cuenta</label>
+                    <input type="text" id="input-titular-retiro" placeholder="Nombre completo">
                 </div>
 
                 <div class="input-group">
-                    <label>Monto depositado (CLP)</label>
-                    <input type="number" id="input-monto-dep" placeholder="Ej: 1500">
+                    <label>Banco / Tipo de cuenta</label>
+                    <input type="text" id="input-banco-retiro" placeholder="Ej: BancoEstado - Cuenta Rut">
                 </div>
 
                 <div class="input-group" style="margin-top: 8px;">
-                    <label>Número de Comprobante / Operación</label>
-                    <input type="text" id="input-comprobante" placeholder="Ej: 98765432">
+                    <label>Número de Cuenta / Rut</label>
+                    <input type="text" id="input-num-cuenta" placeholder="Ej: 12.345.678-9">
                 </div>
 
-                <button class="btn-primary" onclick="enviarComprobante()">Notificar Depósito al Administrador</button>
+                <button class="btn-primary" style="background: var(--success);" onclick="enviarSolicitudRetiro()">Enviar Solicitud de Retiro</button>
+            </div>
+        </div>
+
+        <!-- ================= VISTA INVITAR AMIGOS ================= -->
+        <div id="view-invitar" class="views-section">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">¡Invita amigos y gana recompensas!</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                    Comparte tu enlace personal con tus amigos. Cuando entren a la plataforma por primera vez, ellos ganarán <strong>$300 CLP</strong> de regalo y tú recibirás <strong>$500 CLP</strong> en tu saldo de inmediato.
+                </p>
+
+                <div style="background: var(--bg-color); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 14px;">
+                    <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Tu enlace de invitación único:</span>
+                    <input type="text" id="link-referido-input" readonly style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; text-align: center;" value="Cargando...">
+                </div>
+
+                <button class="btn-primary" onclick="copiarLinkReferido()">Copiar Enlace de Invitación</button>
             </div>
         </div>
 
@@ -416,11 +491,11 @@
         </a>
         <a class="nav-item" onclick="cambiarVista('recarga', this)">
             <i class="fa-solid fa-wallet"></i>
-            <span>Recarga</span>
+            <span>Billetera</span>
         </a>
-        <a class="nav-item" onclick="cambiarVista('vip', this)">
-            <i class="fa-solid fa-crown"></i>
-            <span>VIP</span>
+        <a class="nav-item" onclick="cambiarVista('invitar', this)">
+            <i class="fa-solid fa-users"></i>
+            <span>Invitar</span>
         </a>
         <a class="nav-item" onclick="cambiarVista('perfil', this)">
             <i class="fa-solid fa-user"></i>
@@ -448,7 +523,8 @@
             saldo: 2000,
             vipActual: 0,
             tareasHechasHoy: 0,
-            nombre: "Trabajador Online"
+            nombre: "Trabajador Online",
+            invitadoPor: null
         };
 
         let adminIds = ["TU_ID_DE_TELEGRAM"]; // Reemplaza con tu ID numérico de Telegram
@@ -462,7 +538,6 @@
             5: 5500   
         };
 
-        // Lista de videos de YouTube de ejemplo para las tareas (puedes cambiarlos por los que necesites)
         const videosYoutube = [
             { titulo: "Video Patrocinado #1 - Dar Like y Suscribir", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
             { titulo: "Video Patrocinado #2 - Promoción de Marca Online", url: "https://www.youtube.com/watch?v=jNQXAC9IVRw" },
@@ -487,6 +562,12 @@
             document.getElementById('user-initial').innerText = nombre.charAt(0).toUpperCase();
         }
 
+        // Obtener ID de referido desde la URL de Telegram (si abrió un link tipo t.me/bot?start=ID_REFERIDOR)
+        let referidorId = null;
+        if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+            referidorId = tg.initDataUnsafe.start_param;
+        }
+
         const userRef = db.collection("usuarios").doc(userId);
 
         userRef.onSnapshot((doc) => {
@@ -496,16 +577,34 @@
                     datosUsuario.saldo = 2000;
                 }
             } else {
+                // Nuevo usuario: si viene con referido, le damos $300 CLP de bono de bienvenida
+                let saldoInicial = referidorId ? 2300 : 2000;
                 datosUsuario = {
-                    saldo: 2000,
+                    saldo: saldoInicial,
                     vipActual: 0,
                     tareasHechasHoy: 0,
-                    nombre: tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Trabajador Online"
+                    nombre: tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Trabajador Online",
+                    invitadoPor: referidorId || null
                 };
-                userRef.set(datosUsuario);
+                userRef.set(datosUsuario).then(() => {
+                    // Si fue invitado, le sumamos +$500 CLP al usuario que lo invitó
+                    if (referidorId && referidorId !== userId) {
+                        sumarBonoReferidor(referidorId);
+                    }
+                });
             }
             actualizarInterfaz();
         });
+
+        function sumarBonoReferidor(idReferidor) {
+            let refRef = db.collection("usuarios").doc(idReferidor);
+            refRef.get().then((doc) => {
+                if (doc.exists) {
+                    let saldoActualRef = doc.data().saldo || 0;
+                    refRef.update({ saldo: saldoActualRef + 500 });
+                }
+            });
+        }
 
         function cambiarVista(vistaId, elementoNav) {
             document.querySelectorAll('.views-section').forEach(el => el.classList.remove('active'));
@@ -539,6 +638,12 @@
             let pagoTarea = gananciasConfig[datosUsuario.vipActual] || 0;
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
 
+            // Generar Link de Invitación personalizado para el bot de Telegram
+            // Reemplaza 'TuBotDeTelegram' con el usuario real de tu bot sin el @
+            let botUsername = "TuBotDeTelegram"; 
+            let linkReferido = `https://t.me/${botUsername}?start=${userId}`;
+            document.getElementById('link-referido-input').value = linkReferido;
+
             if (tareasHechas >= 5) {
                 document.getElementById('btn-pedir-tarea').style.display = 'none';
                 document.getElementById('tarea-activa-container').style.display = 'none';
@@ -546,11 +651,27 @@
             }
         }
 
+        function copiarLinkReferido() {
+            let inputLink = document.getElementById('link-referido-input');
+            inputLink.select();
+            inputLink.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(inputLink.value);
+            alert("¡Enlace copiado al portapapeles! Compártelo con tus amigos.");
+        }
+
+        function mostrarSubPestanaRecarga(tipo) {
+            if(tipo === 'retirar') {
+                cambiarVista('retirar');
+            } else {
+                cambiarVista('recarga');
+            }
+        }
+
         let clicksAdmin = 0;
         function chequearAdmin() {
             clicksAdmin++;
             if (adminIds.includes(userId) || clicksAdmin >= 5) {
-                cargarDepositosPendientes();
+                cargarAdministracion();
                 cambiarVista('admin');
                 clicksAdmin = 0;
             }
@@ -587,52 +708,102 @@
             });
         }
 
+        function enviarSolicitudRetiro() {
+            let monto = parseFloat(document.getElementById('input-monto-retiro').value);
+            let titular = document.getElementById('input-titular-retiro').value;
+            let banco = document.getElementById('input-banco-retiro').value;
+            let numCuenta = document.getElementById('input-num-cuenta').value;
+
+            if(!monto || !titular || !banco || !numCuenta) {
+                alert("Por favor completa todos los campos para el retiro.");
+                return;
+            }
+
+            if(monto > datosUsuario.saldo) {
+                alert("No tienes suficiente saldo disponible para este retiro.");
+                return;
+            }
+
+            db.collection("retiros").add({
+                userId: userId,
+                nombre: datosUsuario.nombre,
+                monto: monto,
+                titular: titular,
+                banco: banco,
+                numCuenta: numCuenta,
+                fecha: new Date(),
+                estado: "pendiente"
+            }).then(() => {
+                alert(`¡Solicitud de retiro de $${monto} enviada con éxito!`);
+                document.getElementById('input-monto-retiro').value = '';
+                document.getElementById('input-titular-retiro').value = '';
+                document.getElementById('input-banco-retiro').value = '';
+                document.getElementById('input-num-cuenta').value = '';
+                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+            }).catch(error => {
+                alert("Error al enviar retiro: " + error.message);
+            });
+        }
+
+        function cargarAdministracion() {
+            cargarDepositosPendientes();
+            cargarRetirosPendientes();
+        }
+
         function cargarDepositosPendientes() {
             let contenedor = document.getElementById('lista-depositos-pendientes');
-            contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>Buscando solicitudes...</p>";
+            contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>Buscando...</p>";
 
             db.collection("depositos").get().then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay solicitudes registradas.</p>";
-                    return;
-                }
                 let html = "";
                 querySnapshot.forEach((doc) => {
                     let d = doc.data();
-                    let estadoActual = d.estado || "pendiente";
-                    
-                    if (estadoActual === "aprobado") return;
+                    if (d.estado === "aprobado") return;
 
                     html += `
                         <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:12px;">
                             <p><strong>Usuario:</strong> ${d.nombre} (ID: ${d.userId})</p>
                             <p><strong>VIP Solicitado:</strong> VIP ${d.vipDeseado}</p>
-                            <p><strong>Banco Origen:</strong> ${d.bancoOrigen || 'No especificado'}</p>
+                            <p><strong>Banco:</strong> ${d.bancoOrigen}</p>
                             <p><strong>Monto:</strong> $${d.monto} CLP</p>
                             <p><strong>Comprobante:</strong> ${d.comprobante}</p>
-                            <p><strong>Estado:</strong> ${estadoActual}</p>
                             <button class="btn-primary" style="margin-top:8px; padding:6px; background:var(--success);" onclick="aprobarDeposito('${doc.id}', '${d.userId}', ${d.vipDeseado})">Aprobar y Activar VIP</button>
                         </div>
                     `;
                 });
-                
-                if(html === "") {
-                    contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>No hay depósitos pendientes por aprobar.</p>";
-                } else {
-                    contenedor.innerHTML = html;
-                }
+                contenedor.innerHTML = html === "" ? "<p style='font-size:13px; color:var(--text-muted);'>No hay depósitos pendientes.</p>" : html;
+            });
+        }
+
+        function cargarRetirosPendientes() {
+            let contenedor = document.getElementById('lista-retiros-pendientes');
+            contenedor.innerHTML = "<p style='font-size:13px; color:var(--text-muted);'>Buscando...</p>";
+
+            db.collection("retiros").get().then((querySnapshot) => {
+                let html = "";
+                querySnapshot.forEach((doc) => {
+                    let d = doc.data();
+                    if (d.estado === "aprobado") return;
+
+                    html += `
+                        <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:12px;">
+                            <p><strong>Usuario:</strong> ${d.nombre} (ID: ${d.userId})</p>
+                            <p><strong>Monto a Retirar:</strong> <span style="color:var(--success); font-weight:bold;">$${d.monto} CLP</span></p>
+                            <p><strong>Titular:</strong> ${d.titular}</p>
+                            <p><strong>Banco:</strong> ${d.banco}</p>
+                            <p><strong>Cuenta:</strong> ${d.numCuenta}</p>
+                            <button class="btn-primary" style="margin-top:8px; padding:6px; background:var(--success);" onclick="aprobarRetiro('${doc.id}', '${d.userId}', ${d.monto})">Aprobar y Descontar Saldo</button>
+                        </div>
+                    `;
+                });
+                contenedor.innerHTML = html === "" ? "<p style='font-size:13px; color:var(--text-muted);'>No hay retiros pendientes.</p>" : html;
             });
         }
 
         function aprobarDeposito(docId, targetUserId, vipNivel) {
-            if (!confirm(`¿Estás seguro de aprobar este depósito y activar el VIP ${vipNivel} al usuario?`)) return;
+            if (!confirm(`¿Aprobar VIP ${vipNivel} para este usuario?`)) return;
 
             db.collection("usuarios").doc(targetUserId).get().then((userDoc) => {
-                let saldoActual = 0;
-                if (userDoc.exists && userDoc.data().saldo !== undefined) {
-                    saldoActual = userDoc.data().saldo;
-                }
-
                 let saldosIniciales = { 1: 3500, 2: 7000, 3: 15000, 4: 30000, 5: 60000 };
                 let saldoAsignado = saldosIniciales[vipNivel] || 3500;
 
@@ -642,12 +813,30 @@
                     tareasHechasHoy: 0
                 }, { merge: true }).then(() => {
                     db.collection("depositos").doc(docId).update({ estado: "aprobado" }).then(() => {
-                        alert("¡Depósito aprobado con éxito! El usuario ya tiene su VIP activo y saldo actualizado.");
-                        cargarDepositosPendientes();
+                        alert("¡Depósito aprobado con éxito!");
+                        cargarAdministracion();
                     });
                 });
-            }).catch(err => {
-                alert("Error al aprobar: " + err.message);
+            });
+        }
+
+        function aprobarRetiro(docId, targetUserId, montoRetiro) {
+            if (!confirm(`¿Aprobar el retiro de $${montoRetiro} CLP?`)) return;
+
+            db.collection("usuarios").doc(targetUserId).get().then((userDoc) => {
+                if(userDoc.exists) {
+                    let saldoActual = userDoc.data().saldo || 0;
+                    let nuevoSaldo = Math.max(0, saldoActual - montoRetiro);
+
+                    db.collection("usuarios").doc(targetUserId).update({
+                        saldo: nuevoSaldo
+                    }).then(() => {
+                        db.collection("retiros").doc(docId).update({ estado: "aprobado" }).then(() => {
+                            alert("¡Retiro aprobado y descontado del saldo del usuario!");
+                            cargarAdministracion();
+                        });
+                    });
+                }
             });
         }
 
@@ -664,12 +853,10 @@
                 return;
             }
 
-            // Seleccionar un video aleatorio de la lista
             let indiceAleatorio = Math.floor(Math.random() * videosYoutube.length);
             videoActualAsignado = videosYoutube[indiceAleatorio];
             videoVisto = false;
 
-            // Mostrar elementos de tarea
             document.getElementById('titulo-video-yt').innerText = videoActualAsignado.titulo;
             document.getElementById('link-video-yt').href = videoActualAsignado.url;
             document.getElementById('tarea-activa-container').style.display = 'block';
@@ -693,8 +880,6 @@
             
             userRef.set(datosUsuario, { merge: true }).then(() => {
                 alert(`¡Tarea completada con éxito! Has ganado +$${pago} CLP.`);
-                
-                // Ocultar sección de tarea y resetear botón
                 document.getElementById('tarea-activa-container').style.display = 'none';
                 document.getElementById('btn-reclamar-tarea').style.display = 'none';
                 document.getElementById('btn-pedir-tarea').style.display = 'block';
