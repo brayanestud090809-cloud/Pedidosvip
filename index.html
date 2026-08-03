@@ -122,28 +122,19 @@
 
         .vip-title { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
         .vip-info { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
-        
-        .bank-details {
-            background: #f1f5f9;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin: 12px 0;
-            border-left: 4px solid var(--primary);
-        }
-        .bank-details p { margin-bottom: 4px; }
 
         .input-group {
             margin-top: 10px;
         }
         .input-group label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 13px;
             outline: none;
+            background: white;
         }
 
         .task-action-box {
@@ -197,11 +188,11 @@
             <div class="header-left">
                 <div class="user-profile" id="user-initial">U</div>
                 <div>
-                    <h3 style="font-size: 14px; font-weight: 700;" id="user-name" onclick="chequearAdmin()">Trabajador Online</h3>
+                    <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name" onclick="chequearAdmin()" title="Haz clic varias veces para admin">Trabajador Online</h3>
                     <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
                 </div>
             </div>
-            <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])"></i>
+            <i class="fa-solid fa-bell" style="color: var(--text-muted); font-size: 18px; cursor: pointer;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])"></i>
         </header>
 
         <!-- ================= PANEL DE ADMINISTRADOR ================= -->
@@ -224,7 +215,7 @@
                         <span class="label">Saldo Total en Cuenta</span>
                         <h2 class="amount" id="display-saldo">$0 CLP</h2>
                     </div>
-                    <button style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:20px; font-size:11px; font-weight:600;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Depositar</button>
+                    <button style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:20px; font-size:11px; font-weight:600; cursor: pointer;" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Depositar</button>
                 </div>
             </div>
 
@@ -262,20 +253,12 @@
         <!-- ================= VISTA RECARGAS ================= -->
         <div id="view-recarga" class="views-section">
             <div class="card">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Depósito y Activación</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Transfiere el monto correspondiente al nivel VIP que deseas activar a la siguiente cuenta bancaria:</p>
-
-                <div class="bank-details">
-                    <p><strong>Banco:</strong> BancoEstado / CuentaRUT</p>
-                    <p><strong>Tipo de Cuenta:</strong> Vista</p>
-                    <p><strong>N° de Cuenta:</strong> 12.345.678-9</p>
-                    <p><strong>RUT:</strong> 12.345.678-9</p>
-                    <p><strong>Correo:</strong> pagos@workpedidos.cl</p>
-                </div>
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Reportar Pago / Recarga</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Una vez que hayas realizado la transferencia a la cuenta entregada por el administrador en el chat, completa los siguientes datos para notificar tu pago:</p>
 
                 <div class="input-group">
-                    <label>Selecciona el VIP que deseas</label>
-                    <select id="input-vip-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: white; outline: none; margin-bottom: 8px;">
+                    <label>Selecciona el VIP que deseas activar</label>
+                    <select id="input-vip-select">
                         <option value="1">VIP 1 (Depósito $1.500)</option>
                         <option value="2">VIP 2 (Depósito $5.000)</option>
                         <option value="3">VIP 3 (Depósito $12.000)</option>
@@ -283,16 +266,23 @@
                         <option value="5">VIP 5 (Depósito $50.000)</option>
                     </select>
                 </div>
+
+                <div class="input-group">
+                    <label>¿Desde qué banco transferiste?</label>
+                    <input type="text" id="input-banco-origen" placeholder="Ej: BancoEstado, Santander, etc.">
+                </div>
+
                 <div class="input-group">
                     <label>Monto depositado (CLP)</label>
                     <input type="number" id="input-monto-dep" placeholder="Ej: 1500">
                 </div>
+
                 <div class="input-group" style="margin-top: 8px;">
                     <label>Número de Comprobante / Operación</label>
                     <input type="text" id="input-comprobante" placeholder="Ej: 98765432">
                 </div>
 
-                <button class="btn-primary" onclick="enviarComprobante()">Notificar Depósito</button>
+                <button class="btn-primary" onclick="enviarComprobante()">Notificar Depósito al Administrador</button>
             </div>
         </div>
 
@@ -300,7 +290,7 @@
         <div id="view-vip" class="views-section">
             <div class="card" style="margin-bottom: 12px;">
                 <h3 style="font-size: 15px; font-weight: 700;">Niveles VIP Disponibles</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Para activar tu nivel VIP, realiza una transferencia y reporta tu pago en la sección Recarga. Un administrador verificará y aprobará tu acceso.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Pide los datos de transferencia por el chat oficial, realiza tu pago y reporta tu comprobante en la sección Recarga para activar tu nivel.</p>
             </div>
 
             <!-- VIP 1 -->
@@ -368,7 +358,7 @@
                 </div>
             </div>
             
-            <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Recargar y Notificar Pago</button>
+            <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Reportar Pago</button>
         </div>
 
         <!-- ================= VISTA PERFIL ================= -->
@@ -433,7 +423,7 @@
             nombre: "Trabajador Online"
         };
 
-        let adminIds = ["TU_ID_DE_TELEGRAM"]; 
+        let adminIds = ["TU_ID_DE_TELEGRAM"]; // Reemplaza con tu ID numérico de Telegram
 
         const gananciasConfig = {
             0: 0,
@@ -521,11 +511,12 @@
 
         function enviarComprobante() {
             let vipDeseado = parseInt(document.getElementById('input-vip-select').value);
+            let bancoOrigen = document.getElementById('input-banco-origen').value;
             let monto = document.getElementById('input-monto-dep').value;
             let comp = document.getElementById('input-comprobante').value;
 
-            if(!monto || !comp) {
-                alert("Por favor ingresa el monto y el número de comprobante.");
+            if(!bancoOrigen || !monto || !comp) {
+                alert("Por favor completa todos los campos (banco, monto y comprobante).");
                 return;
             }
 
@@ -533,12 +524,14 @@
                 userId: userId,
                 nombre: datosUsuario.nombre,
                 vipDeseado: vipDeseado,
+                bancoOrigen: bancoOrigen,
                 monto: parseFloat(monto),
                 comprobante: comp,
                 fecha: new Date(),
                 estado: "pendiente"
             }).then(() => {
-                alert(`¡Comprobante de $${monto} enviado! El administrador lo revisará pronto para activar tu VIP.`);
+                alert(`¡Comprobante de $${monto} enviado con éxito! El administrador lo revisará y aprobará pronto.`);
+                document.getElementById('input-banco-origen').value = '';
                 document.getElementById('input-monto-dep').value = '';
                 document.getElementById('input-comprobante').value = '';
                 cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
@@ -567,6 +560,7 @@
                         <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; font-size:12px;">
                             <p><strong>Usuario:</strong> ${d.nombre} (ID: ${d.userId})</p>
                             <p><strong>VIP Solicitado:</strong> VIP ${d.vipDeseado}</p>
+                            <p><strong>Banco Origen:</strong> ${d.bancoOrigen || 'No especificado'}</p>
                             <p><strong>Monto:</strong> $${d.monto} CLP</p>
                             <p><strong>Comprobante:</strong> ${d.comprobante}</p>
                             <p><strong>Estado:</strong> ${estadoActual}</p>
@@ -605,7 +599,7 @@
 
         function procesarPedido() {
             if (datosUsuario.vipActual === 0) {
-                alert("No tienes ningún nivel VIP activo. Realiza una recarga y espera la aprobación del administrador.");
+                alert("No tienes ningún nivel VIP activo. Solicita los datos de pago al administrador y reporta tu comprobante.");
                 cambiarVista('vip', document.querySelectorAll('.nav-item')[3]);
                 return;
             }
