@@ -209,7 +209,7 @@
             <div class="header-left">
                 <div class="user-profile" id="user-initial">U</div>
                 <div>
-                    <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name" onclick="chequearAdmin()" title="Haz clic varias veces para admin">Trabajador Online</h3>
+                    <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name" onclick="chequearAdmin()">Trabajador Online</h3>
                     <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
                 </div>
             </div>
@@ -529,7 +529,7 @@
     </nav>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Con tu Clave API actualizada)
+        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBRryLXgK2LPXJ669K-LPxYsfUnZ8Hbdko",
             authDomain: "canal-de-trabajo-vip.firebaseapp.com",
@@ -553,7 +553,8 @@
             invitadoPor: null
         };
 
-        let adminIds = ["TU_ID_DE_TELEGRAM"]; // Reemplaza con tu ID numérico de Telegram o UID de Firebase
+        // LISTA DE ADMINISTRADORES AUTORIZADOS (@Bjhon7163 y @asesortelegram16)
+        const ADMIN_USERNAMES = ['Bjhon7163', 'asesortelegram16'];
 
         const gananciasConfig = {
             0: 0,
@@ -578,13 +579,11 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Obtener ID de referido desde la URL de Telegram (si abrió un link tipo t.me/bot?start=ID_REFERIDOR)
         let referidorId = null;
         if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
             referidorId = tg.initDataUnsafe.start_param;
         }
 
-        // CONTROL DE AUTENTICACIÓN FIREBASE (TELÉFONO)
         window.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -601,7 +600,6 @@
         function cambiarVistaAuth(vistaId) {
             document.querySelectorAll('.views-section').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + vistaId).classList.add('active');
-            // Ocultar barra de navegación inferior si está en auth
             document.querySelector('.bottom-nav').style.display = (vistaId === 'auth') ? 'none' : 'flex';
         }
 
@@ -656,7 +654,6 @@
                         datosUsuario.saldo = 2000;
                     }
                 } else {
-                    // Nuevo usuario: si viene con referido, le damos $300 CLP de bono de bienvenida
                     let saldoInicial = referidorId ? 2300 : 2000;
                     datosUsuario = {
                         saldo: saldoInicial,
@@ -666,7 +663,6 @@
                         invitadoPor: referidorId || null
                     };
                     userRef.set(datosUsuario).then(() => {
-                        // Si fue invitado, le sumamos +$500 CLP al usuario que lo invitó
                         if (referidorId && referidorId !== userId) {
                             sumarBonoReferidor(referidorId);
                         }
@@ -718,7 +714,6 @@
             let pagoTarea = gananciasConfig[datosUsuario.vipActual] || 0;
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
 
-            // Generar Link de Invitación con tu bot configurado
             let botUsername = "Trabajosvipcanalbot"; 
             let linkReferido = `https://t.me/${botUsername}?start=${userId}`;
             document.getElementById('link-referido-input').value = linkReferido;
@@ -746,10 +741,21 @@
             }
         }
 
+        // VALIDACIÓN ESTRICTA DE ADMINISTRADORES POR LOS 5 CLICS
         let clicksAdmin = 0;
         function chequearAdmin() {
+            // Verificar primero si el usuario actual en Telegram está autorizado
+            const tgUser = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+            const usernameActual = tgUser ? tgUser.username : null;
+
+            if (!usernameActual || !ADMIN_USERNAMES.includes(usernameActual)) {
+                // Si no es ninguno de los administradores permitidos, ignorar completamente los clics
+                return;
+            }
+
+            // Si es uno de los administradores, contar los 5 toques
             clicksAdmin++;
-            if (adminIds.includes(userId) || clicksAdmin >= 5) {
+            if (clicksAdmin >= 5) {
                 cargarAdministracion();
                 cambiarVista('admin');
                 clicksAdmin = 0;
@@ -919,7 +925,6 @@
             });
         }
 
-        // Lógica de Tareas YouTube
         function obtenerSiguienteTarea() {
             if (datosUsuario.vipActual === 0) {
                 alert("No tienes ningún nivel VIP activo. Solicita los datos de pago al administrador y reporta tu comprobante.");
@@ -969,4 +974,3 @@
     </script>
 </body>
 </html>
- 
