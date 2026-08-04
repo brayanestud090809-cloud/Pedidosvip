@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+             <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -208,7 +208,7 @@
             <div class="header-left">
                 <div class="user-profile" id="user-initial">U</div>
                 <div>
-                    <!-- 5 clics aquí para abrir el panel de admin -->
+                    <!-- 5 clics aquí para abrir el panel (Solo los 3 autorizados podrán entrar) -->
                     <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name" onclick="intentarAbrirAdmin()">Trabajador Online</h3>
                     <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
                 </div>
@@ -733,13 +733,37 @@
             actualizarInterfaz();
         }
 
-        // PANEL DE ADMINISTRADOR OCULTO (5 CLICS)
+        // PANEL DE ADMINISTRADOR RESTRINGIDO A LOS 3 USUARIOS ESPECÍFICOS
         function intentarAbrirAdmin() {
+            let tgUser = window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user : null;
+            let usernameTg = tgUser && tgUser.username ? "@" + tgUser.username.toLowerCase() : "";
+            
+            // Verificamos por nombre de usuario de Telegram o si el teléfono guardado coincide
+            let esAdminPermitido = false;
+            
+            // Lista de usuarios de Telegram permitidos
+            let usernamesPermitidos = ["@bjhon7163", "@asesortelegram16"];
+            // Lista de teléfonos permitidos (incluyendo el tuyo)
+            let telefonosPermitidos = ["+56920111973", "+56986171864", "56945354720"];
+
+            if (usernameTg && usernamesPermitidos.includes(usernameTg)) {
+                esAdminPermitido = true;
+            }
+            if (datosUsuario.telefono && telefonosPermitidos.some(t => datosUsuario.telefono.includes(t.replace('+', '')))) {
+                esAdminPermitido = true;
+            }
+
+            // Validación por clics rápidos + comprobación de identidad
             clicksAdmin++;
             if (clicksAdmin >= 5) {
                 clicksAdmin = 0;
-                cargarPanelAdmin();
-                cambiarVista('admin');
+                
+                if (esAdminPermitido) {
+                    cargarPanelAdmin();
+                    cambiarVista('admin');
+                } else {
+                    alert("Acceso denegado. Este panel es exclusivo para administradores autorizados.");
+                }
             }
         }
 
