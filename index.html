@@ -7,6 +7,10 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -204,7 +208,8 @@
             <div class="header-left">
                 <div class="user-profile" id="user-initial">U</div>
                 <div>
-                    <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name">Trabajador Online</h3>
+                    <!-- 5 clics aquí para abrir el panel de admin -->
+                    <h3 style="font-size: 14px; font-weight: 700; cursor: pointer;" id="user-name" onclick="intentarAbrirAdmin()">Trabajador Online</h3>
                     <span class="badge-vip" id="header-vip-badge">VIP Inactivo</span>
                 </div>
             </div>
@@ -215,7 +220,7 @@
         <div id="view-auth" class="views-section">
             <div class="card">
                 <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;"><i class="fa-solid fa-user-pen"></i> Registro de Usuario</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">Ingresa tus datos por única vez para configurar tu perfil de trabajo:</p>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px;">Ingresa tus datos por única vez para configurar tu perfil:</p>
 
                 <div class="input-group">
                     <label>Nombre Completo</label>
@@ -253,7 +258,7 @@
 
             <div class="card" style="background: linear-gradient(135deg, #1e293b, #334155); color: white;">
                 <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">▶️ Sistema de Tareas YouTube</h3>
-                <p style="font-size: 12px; opacity: 0.8; line-height: 1.4;">Gana dinero dando like a videos patrocinados de YouTube según tu nivel VIP activo.</p>
+                <p style="font-size: 12px; opacity: 0.8; line-height: 1.4;">Gana dinero dando like a videos patrocinados según tu nivel VIP activo.</p>
                 <button class="btn-primary" style="background: var(--success); margin-top: 12px;" onclick="cambiarVista('tareas', document.querySelectorAll('.nav-item')[1])">Ir a hacer Tareas</button>
             </div>
 
@@ -300,13 +305,13 @@
         <div id="view-recarga" class="views-section">
             <div class="card">
                 <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-                    <button class="btn-primary" style="margin-top:0; background:var(--primary);" onclick="mostrarSubPestanaRecarga('recargar')">Depositar</button>
-                    <button class="btn-primary" style="margin-top:0; background:#64748b;" onclick="mostrarSubPestanaRecarga('retirar')">Retirar Dinero</button>
+                    <button class="btn-primary" style="margin-top:0; background:var(--primary);" onclick="cambiarVista('recarga')">Depositar</button>
+                    <button class="btn-primary" style="margin-top:0; background:#64748b;" onclick="cambiarVista('retirar')">Retirar Dinero</button>
                 </div>
 
-                <div id="sub-recarga-form">
+                <div>
                     <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Reportar Pago / Recarga</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Completa los datos de tu transferencia enviada al administrador:</p>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Completa los datos de tu transferencia enviada:</p>
 
                     <div class="input-group">
                         <label>Selecciona el VIP que deseas activar</label>
@@ -343,7 +348,7 @@
         <div id="view-retirar" class="views-section">
             <div class="card">
                 <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Solicitar Retiro de Dinero</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Transfiere tus ganancias a tu cuenta bancaria o cuenta rut:</p>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">Transfiere tus ganancias a tu cuenta bancaria:</p>
 
                 <div class="input-group">
                     <label>Monto a retirar (CLP)</label>
@@ -351,7 +356,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Nombre del titular de la cuenta</label>
+                    <label>Nombre del titular</label>
                     <input type="text" id="input-titular-retiro" placeholder="Nombre completo">
                 </div>
 
@@ -375,13 +380,13 @@
                 <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;">
                     <i class="fa-solid fa-gift"></i>
                 </div>
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">¡Invita amigos y gana recompensas!</h3>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">¡Invita amigos y gana!</h3>
                 <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                    Comparte tu enlace personal con tus amigos. Cuando entren a la plataforma por primera vez, ellos ganarán <strong>$300 CLP</strong> de regalo y tú recibirás <strong>$500 CLP</strong> en tu saldo de inmediato.
+                    Comparte tu enlace personal. Ellos ganan <strong>$300 CLP</strong> y tú recibes <strong>$500 CLP</strong> en tu saldo.
                 </p>
 
                 <div style="background: var(--bg-color); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 14px;">
-                    <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Tu enlace de invitación único:</span>
+                    <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Tu enlace de invitación:</span>
                     <input type="text" id="link-referido-input" readonly style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; text-align: center;" value="Cargando...">
                 </div>
 
@@ -393,73 +398,15 @@
         <div id="view-vip" class="views-section">
             <div class="card" style="margin-bottom: 12px;">
                 <h3 style="font-size: 15px; font-weight: 700;">Niveles VIP Disponibles</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Pide los datos de transferencia por el chat oficial, realiza tu pago y reporta tu comprobante en la sección Recarga para activar tu nivel.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Pide los datos de transferencia, realiza tu pago y reporta tu comprobante.</p>
             </div>
 
-            <!-- VIP 1 -->
-            <div class="vip-card">
-                <div class="vip-title">
-                    <span>VIP 1 (Básico)</span>
-                    <span style="color: var(--success); font-weight: 700;">$3.500 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Depósito requerido: <strong>$1.500 CLP</strong> (+ $2.000 de regalo app)</p>
-                    <p>• Tareas diarias: <strong>5 videos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$200 CLP</strong> (Total diario: $1.000)</p>
-                </div>
-            </div>
-
-            <!-- VIP 2 -->
-            <div class="vip-card">
-                <div class="vip-title">
-                    <span>VIP 2</span>
-                    <span style="color: var(--success); font-weight: 700;">$7.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Depósito requerido: <strong>$5.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 videos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$500 CLP</strong> (Total diario: $2.500)</p>
-                </div>
-            </div>
-
-            <!-- VIP 3 -->
-            <div class="vip-card">
-                <div class="vip-title">
-                    <span>VIP 3</span>
-                    <span style="color: var(--success); font-weight: 700;">$15.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Depósito requerido: <strong>$12.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 videos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$1.200 CLP</strong> (Total diario: $6.000)</p>
-                </div>
-            </div>
-
-            <!-- VIP 4 -->
-            <div class="vip-card">
-                <div class="vip-title">
-                    <span>VIP 4</span>
-                    <span style="color: var(--success); font-weight: 700;">$30.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Depósito requerido: <strong>$25.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 videos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$2.600 CLP</strong> (Total diario: $13.000)</p>
-                </div>
-            </div>
-
-            <!-- VIP 5 -->
-            <div class="vip-card">
-                <div class="vip-title">
-                    <span>VIP 5</span>
-                    <span style="color: var(--success); font-weight: 700;">$60.000 Total operativo</span>
-                </div>
-                <div class="vip-info">
-                    <p>• Depósito requerido: <strong>$50.000 CLP</strong></p>
-                    <p>• Tareas diarias: <strong>5 videos</strong></p>
-                    <p>• Ganancia por tarea: <strong>$5.500 CLP</strong> (Total diario: $27.500)</p>
-                </div>
-            </div>
+            <!-- VIP 1 al 5 -->
+            <div class="vip-card"><div class="vip-title"><span>VIP 1 (Básico)</span><span style="color: var(--success);">Depósito $1.500</span></div><div class="vip-info"><p>• Tareas: 5 videos | Ganancia por tarea: $200 CLP</p></div></div>
+            <div class="vip-card"><div class="vip-title"><span>VIP 2</span><span style="color: var(--success);">Depósito $5.000</span></div><div class="vip-info"><p>• Tareas: 5 videos | Ganancia por tarea: $500 CLP</p></div></div>
+            <div class="vip-card"><div class="vip-title"><span>VIP 3</span><span style="color: var(--success);">Depósito $12.000</span></div><div class="vip-info"><p>• Tareas: 5 videos | Ganancia por tarea: $1.200 CLP</p></div></div>
+            <div class="vip-card"><div class="vip-title"><span>VIP 4</span><span style="color: var(--success);">Depósito $25.000</span></div><div class="vip-info"><p>• Tareas: 5 videos | Ganancia por tarea: $2.600 CLP</p></div></div>
+            <div class="vip-card"><div class="vip-title"><span>VIP 5</span><span style="color: var(--success);">Depósito $50.000</span></div><div class="vip-info"><p>• Tareas: 5 videos | Ganancia por tarea: $5.500 CLP</p></div></div>
             
             <button class="btn-primary" onclick="cambiarVista('recarga', document.querySelectorAll('.nav-item')[2])">Ir a Reportar Pago</button>
         </div>
@@ -475,6 +422,20 @@
                     <p><strong>Nivel actual:</strong> <span id="perfil-vip" style="color: var(--vip-color); font-weight: bold;">Sin VIP Activo</span></p>
                     <p><strong>Saldo disponible:</strong> <span id="perfil-saldo" style="color: var(--success); font-weight: bold;">$0 CLP</span></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- ================= VISTA ADMIN PANEL (OCULTO) ================= -->
+        <div id="view-admin" class="views-section">
+            <div class="admin-panel">
+                <h3 style="font-size: 16px; font-weight: 700; color: #b45309; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i> Panel de Administración</h3>
+                <p style="font-size: 12px; color: #78350f; margin-bottom: 12px;">Aquí puedes ver los reportes de recarga pendientes y activar los VIPs de los usuarios:</p>
+                
+                <div id="lista-depositos-admin" style="font-size: 12px;">
+                    <p style="color: var(--text-muted);">Cargando solicitudes...</p>
+                </div>
+                
+                <button class="btn-primary" style="background: #475569; margin-top: 14px;" onclick="cambiarVista('inicio', document.querySelectorAll('.nav-item')[0])">Cerrar Panel Admin</button>
             </div>
         </div>
 
@@ -505,43 +466,48 @@
     </nav>
 
     <script>
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRryLXg2LPXJ669K-LPxYsFUnZ8Hbdko",
+            authDomain: "canal-de-trabajo-vip.firebaseapp.com",
+            projectId: "canal-de-trabajo-vip",
+            storageBucket: "canal-de-trabajo-vip.appspot.com",
+            messagingSenderId: "225278055277",
+            appId: "1:225278055277:web:4150bd3e9ff682fb6e4064",
+            measurementId: "G-PET11XWKV"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let datosUsuario = {
+            id: null,
             saldo: 2000,
             vipActual: 0,
             tareasHechasHoy: 0,
-            nombre: "Trabajador Online",
+            nombre: "",
             telefono: "",
             correo: ""
         };
 
-        const gananciasConfig = {
-            0: 0,
-            1: 200,   
-            2: 500,   
-            3: 1200,  
-            4: 2600,  
-            5: 5500   
-        };
-
+        const gananciasConfig = { 0: 0, 1: 200, 2: 500, 3: 1200, 4: 2600, 5: 5500 };
         const videosYoutube = [
-            { titulo: "Video Patrocinado #1 - Dar Like y Suscribir", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-            { titulo: "Video Patrocinado #2 - Promoción de Marca Online", url: "https://www.youtube.com/watch?v=jNQXAC9IVRw" },
-            { titulo: "Video Patrocinado #3 - Reseña de Producto Digital", url: "https://www.youtube.com/watch?v=9bZkp7q19f0" },
-            { titulo: "Video Patrocinado #4 - Campaña de Marketing Global", url: "https://www.youtube.com/watch?v=5qap5aO4i9A" },
-            { titulo: "Video Patrocinado #5 - Evento Exclusivo Partners", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk" }
+            { titulo: "Video Patrocinado #1 - Dar Like", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+            { titulo: "Video Patrocinado #2 - Promoción Online", url: "https://www.youtube.com/watch?v=jNQXAC9IVRw" },
+            { titulo: "Video Patrocinado #3 - Reseña Producto", url: "https://www.youtube.com/watch?v=9bZkp7q19f0" },
+            { titulo: "Video Patrocinado #4 - Campaña Global", url: "https://www.youtube.com/watch?v=5qap5aO4i9A" },
+            { titulo: "Video Patrocinado #5 - Evento Partners", url: "https://www.youtube.com/watch?v=kJQP7kiw5Fk" }
         ];
 
         let videoVisto = false;
+        let clicksAdmin = 0;
         let tg = window.Telegram.WebApp;
         tg.expand();
 
         window.addEventListener('DOMContentLoaded', () => {
-            let datosGuardados = localStorage.getItem('workpedidos_usuario');
-            if (datosGuardados) {
-                datosUsuario = JSON.parse(datosGuardados);
-                actualizarInterfaz();
-                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
-                document.querySelector('.bottom-nav').style.display = 'flex';
+            let userIdGuardado = localStorage.getItem('workpedidos_userid');
+            if (userIdGuardado) {
+                cargarUsuarioDeFirebase(userIdGuardado);
             } else {
                 cambiarVistaAuth('auth');
             }
@@ -553,20 +519,58 @@
             let correo = document.getElementById('reg-correo').value.trim();
 
             if (!nombre || !telefono || !correo) {
-                alert("Por favor completa todos los campos (Nombre, Teléfono y Correo).");
+                alert("Por favor completa todos los campos.");
                 return;
             }
 
-            datosUsuario.nombre = nombre;
-            datosUsuario.telefono = telefono;
-            datosUsuario.correo = correo;
-            datosUsuario.saldo = 2000;
+            let nuevoUsuario = {
+                nombre: nombre,
+                telefono: telefono,
+                correo: correo,
+                saldo: 2000,
+                vipActual: 0,
+                tareasHechasHoy: 0,
+                fechaCreacion: new Date().toISOString()
+            };
 
-            localStorage.setItem('workpedidos_usuario', JSON.stringify(datosUsuario));
-            alert("¡Perfil guardado con éxito! Bienvenido.");
-            actualizarInterfaz();
-            cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
-            document.querySelector('.bottom-nav').style.display = 'flex';
+            db.collection("usuarios").add(nuevoUsuario)
+            .then((docRef) => {
+                localStorage.setItem('workpedidos_userid', docRef.id);
+                datosUsuario = { id: docRef.id, ...nuevoUsuario };
+                alert("¡Perfil guardado con éxito en Firebase!");
+                actualizarInterfaz();
+                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+                document.querySelector('.bottom-nav').style.display = 'flex';
+            })
+            .catch((error) => {
+                alert("Error al guardar en Firebase: " + error.message);
+            });
+        }
+
+        function cargarUsuarioDeFirebase(id) {
+            db.collection("usuarios").doc(id).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    datosUsuario = { id: doc.id, ...doc.data() };
+                    actualizarInterfaz();
+                    cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+                    document.querySelector('.bottom-nav').style.display = 'flex';
+                } else {
+                    cambiarVistaAuth('auth');
+                }
+            })
+            .catch(() => {
+                cambiarVistaAuth('auth');
+            });
+        }
+
+        function actualizarDatosEnFirebase() {
+            if (!datosUsuario.id) return;
+            db.collection("usuarios").doc(datosUsuario.id).update({
+                saldo: datosUsuario.saldo,
+                vipActual: datosUsuario.vipActual,
+                tareasHechasHoy: datosUsuario.tareasHechasHoy
+            });
         }
 
         function cambiarVistaAuth(vistaId) {
@@ -614,7 +618,7 @@
             let pagoTarea = gananciasConfig[datosUsuario.vipActual] || 0;
             document.getElementById('ganancia-por-tarea-txt').innerText = "$" + pagoTarea.toLocaleString('es-CL') + " CLP";
 
-            document.getElementById('link-referido-input').value = "https://t.me/Trabajosvipcanalbot?start=local_ref";
+            document.getElementById('link-referido-input').value = "https://t.me/Trabajosvipcanalbot?start=" + datosUsuario.id;
 
             if (tareasHechas >= 5) {
                 document.getElementById('btn-pedir-tarea').style.display = 'none';
@@ -626,66 +630,79 @@
         function copiarLinkReferido() {
             let inputLink = document.getElementById('link-referido-input');
             inputLink.select();
-            inputLink.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(inputLink.value);
             alert("¡Enlace copiado al portapapeles!");
         }
 
-        function mostrarSubPestanaRecarga(tipo) {
-            if(tipo === 'retirar') {
-                cambiarVista('retirar');
-            } else {
-                cambiarVista('recarga');
-            }
-        }
-
         function enviarComprobante() {
+            let vipSeleccionado = document.getElementById('input-vip-select').value;
+            let banco = document.getElementById('input-banco-origen').value;
             let monto = document.getElementById('input-monto-dep').value;
-            let comp = document.getElementById('input-comprobante').value;
+            let comprobante = document.getElementById('input-comprobante').value;
 
-            if(!monto || !comp) {
+            if(!monto || !comprobante) {
                 alert("Por favor completa los campos del comprobante.");
                 return;
             }
 
-            alert(`¡Comprobante de $${monto} enviado con éxito! Será revisado.`);
-            document.getElementById('input-banco-origen').value = '';
-            document.getElementById('input-monto-dep').value = '';
-            document.getElementById('input-comprobante').value = '';
-            cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+            let reporte = {
+                userId: datosUsuario.id,
+                nombreUsuario: datosUsuario.nombre,
+                vipDeseado: parseInt(vipSeleccionado),
+                banco: banco,
+                monto: parseFloat(monto),
+                comprobante: comprobante,
+                estado: "pendiente",
+                fecha: new Date().toISOString()
+            };
+
+            db.collection("recargas").add(reporte)
+            .then(() => {
+                alert("¡Comprobante enviado al administrador con éxito!");
+                document.getElementById('input-banco-origen').value = '';
+                document.getElementById('input-monto-dep').value = '';
+                document.getElementById('input-comprobante').value = '';
+                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+            })
+            .catch((error) => {
+                alert("Error al enviar: " + error.message);
+            });
         }
 
         function enviarSolicitudRetiro() {
             let monto = parseFloat(document.getElementById('input-monto-retiro').value);
+            if(!monto) { alert("Ingresa el monto a retirar."); return; }
+            if(monto > datosUsuario.saldo) { alert("Saldo insuficiente."); return; }
 
-            if(!monto) {
-                alert("Por favor completa el monto de retiro.");
-                return;
-            }
+            let retiro = {
+                userId: datosUsuario.id,
+                nombreUsuario: datosUsuario.nombre,
+                monto: monto,
+                titular: document.getElementById('input-titular-retiro').value,
+                bancoCuenta: document.getElementById('input-banco-retiro').value,
+                numeroCuenta: document.getElementById('input-num-cuenta').value,
+                estado: "pendiente",
+                fecha: new Date().toISOString()
+            };
 
-            if(monto > datosUsuario.saldo) {
-                alert("No tienes suficiente saldo disponible.");
-                return;
-            }
-
-            alert(`¡Solicitud de retiro de $${monto} enviada con éxito!`);
-            cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+            db.collection("retiros").add(retiro).then(() => {
+                alert("¡Solicitud de retiro enviada!");
+                cambiarVista('inicio', document.querySelectorAll('.nav-item')[0]);
+            });
         }
 
         function obtenerSiguienteTarea() {
             if (datosUsuario.vipActual === 0) {
-                alert("No tienes ningún nivel VIP activo. Reporta tu pago en la sección de recarga.");
+                alert("No tienes ningún nivel VIP activo.");
                 cambiarVista('vip', document.querySelectorAll('.nav-item')[3]);
                 return;
             }
-
             if ((datosUsuario.tareasHechasHoy || 0) >= 5) {
-                alert("Ya has completado tus 5 tareas diarias de hoy. ¡Vuelve mañana!");
+                alert("Ya completaste tus 5 tareas de hoy.");
                 return;
             }
 
-            let indiceAleatorio = Math.floor(Math.random() * videosYoutube.length);
-            let videoAsignado = videosYoutube[indiceAleatorio];
+            let videoAsignado = videosYoutube[Math.floor(Math.random() * videosYoutube.length)];
             videoVisto = false;
 
             document.getElementById('titulo-video-yt').innerText = videoAsignado.titulo;
@@ -695,13 +712,11 @@
             document.getElementById('btn-reclamar-tarea').style.display = 'block';
         }
 
-        function marcarVideoVisto() {
-            videoVisto = true;
-        }
+        function marcarVideoVisto() { videoVisto = true; }
 
         function reclamarRecompensaTarea() {
             if (!videoVisto) {
-                alert("Primero debes hacer clic en 'Ver Video y Dar Like' para ir a YouTube.");
+                alert("Primero debes ver el video y dar like.");
                 return;
             }
 
@@ -709,13 +724,61 @@
             datosUsuario.saldo += pago;
             datosUsuario.tareasHechasHoy = (datosUsuario.tareasHechasHoy || 0) + 1;
             
-            localStorage.setItem('workpedidos_usuario', JSON.stringify(datosUsuario));
-            alert(`¡Tarea completada con éxito! Has ganado +$${pago} CLP.`);
+            actualizarDatosEnFirebase();
+            alert(`¡Recompensa reclamada! +$${pago} CLP`);
             
             document.getElementById('tarea-activa-container').style.display = 'none';
             document.getElementById('btn-reclamar-tarea').style.display = 'none';
             document.getElementById('btn-pedir-tarea').style.display = 'block';
             actualizarInterfaz();
+        }
+
+        // PANEL DE ADMINISTRADOR OCULTO (5 CLICS)
+        function intentarAbrirAdmin() {
+            clicksAdmin++;
+            if (clicksAdmin >= 5) {
+                clicksAdmin = 0;
+                cargarPanelAdmin();
+                cambiarVista('admin');
+            }
+        }
+
+        function cargarPanelAdmin() {
+            let contenedor = document.getElementById('lista-depositos-admin');
+            contenedor.innerHTML = "Cargando recargas pendientes...";
+
+            db.collection("recargas").where("estado", "==", "pendiente").get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    contenedor.innerHTML = "<p>No hay recargas pendientes.</p>";
+                    return;
+                }
+
+                let html = "";
+                querySnapshot.forEach((doc) => {
+                    let r = doc.data();
+                    html += `
+                        <div style="background:white; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #fcd34d;">
+                            <p><strong>Usuario:</strong> ${r.nombreUsuario}</p>
+                            <p><strong>VIP solicitado:</strong> VIP ${r.vipDeseado} ($${r.monto})</p>
+                            <p><strong>Comprobante:</strong> ${r.comprobante} (${r.banco})</p>
+                            <button class="btn-primary" style="padding:6px; font-size:11px; margin-top:6px; background:var(--success);" onclick="aprobarRecarga('${doc.id}', '${r.userId}', ${r.vipDeseado})">Aprobar VIP</button>
+                        </div>
+                    `;
+                });
+                contenedor.innerHTML = html;
+            });
+        }
+
+        function aprobarRecarga(recargaId, targetUserId, vipNum) {
+            db.collection("recargas").doc(recargaId).update({ estado: "aprobado" })
+            .then(() => {
+                db.collection("usuarios").doc(targetUserId).update({ vipActual: vipNum })
+                .then(() => {
+                    alert("¡VIP aprobado con éxito para el usuario!");
+                    cargarPanelAdmin();
+                });
+            });
         }
     </script>
 </body>
